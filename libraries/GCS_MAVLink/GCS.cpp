@@ -67,4 +67,28 @@ bool GCS::install_alternative_protocol(mavlink_channel_t c, GCS_MAVLINK::protoco
     return true;
 }
 
+/*
+  thread for sending mavlink stream messages
+ */
+void GCS::send_thread(void)
+{
+    uint32_t last_heartbeat_ms = 0;
+    while (true) {
+        uint32_t now = AP_HAL::millis();
+        if (now - last_heartbeat_ms >= 1000) {
+            last_heartbeat_ms = now;
+            gcs().send_message(MSG_HEARTBEAT);
+        }
+        gcs().update_send();
+        hal.scheduler->delay(2);
+    }
+}
+
+void GCS::start_send_thread(void)
+{
+    if (!hal.scheduler->thread_create(FUNCTOR_BIND_MEMBER(&GCS::send_thread, void), "GCS_send", 8192, AP_HAL::Scheduler::PRIORITY_IO, 1)) {
+        AP_HAL::panic("Failed to start GCS send thread");
+    }
+}
+
 #undef FOR_EACH_ACTIVE_CHANNEL

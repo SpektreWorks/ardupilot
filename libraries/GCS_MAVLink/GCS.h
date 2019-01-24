@@ -746,13 +746,6 @@ public:
     void update_receive();
     virtual void setup_uarts(AP_SerialManager &serial_manager);
 
-    bool out_of_time() const {
-        return _out_of_time;
-    }
-    void set_out_of_time(bool val) {
-        _out_of_time = val;
-    }
-
     /*
       set a frsky_telem pointer for queueing
      */
@@ -773,6 +766,8 @@ public:
     // update uart pass-thru
     void update_passthru();
 
+    void start_send_thread(void);
+    
 private:
 
     static GCS *_singleton;
@@ -795,9 +790,6 @@ private:
     // queue of outgoing statustext messages
     ObjectArray<statustext_t> _statustext_queue{_status_capacity};
 
-    // true if we are running short on time in our main loop
-    bool _out_of_time;
-
     // handle passthru between two UARTs
     struct {
         bool enabled;
@@ -813,6 +805,9 @@ private:
 
     // timer called to implement pass-thru
     void passthru_timer();
+
+    // thread for sending mavlink streams
+    void send_thread(void);
 };
 
 GCS &gcs();
