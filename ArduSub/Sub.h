@@ -473,11 +473,11 @@ private:
     float get_surface_tracking_climb_rate(int16_t target_rate, float current_alt_target, float dt);
     void update_poscon_alt_max();
     void rotate_body_frame_to_NE(float &x, float &y);
-    void gcs_send_heartbeat(void);
     void send_heartbeat(mavlink_channel_t chan);
     void get_sensor_status_flags(uint32_t &control_sensors_present,
                                  uint32_t &control_sensors_enabled,
                                  uint32_t &control_sensors_health);
+    void send_sys_status(mavlink_channel_t chan);
     void send_nav_controller_output(mavlink_channel_t chan);
 #if RPM_ENABLED == ENABLED
     void send_rpm(mavlink_channel_t chan);
