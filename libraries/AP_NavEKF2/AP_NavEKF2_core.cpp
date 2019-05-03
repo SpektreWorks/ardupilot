@@ -356,8 +356,11 @@ void NavEKF2_core::InitialiseVariablesMag()
 // This method can only be used when the vehicle is static
 bool NavEKF2_core::InitialiseFilterBootstrap(void)
 {
+    // update sensor selection (for affinity)
+    update_sensor_selection();
+
     // If we are a plane and don't have GPS lock then don't initialise
-    if (assume_zero_sideslip() && AP::gps().status() < AP_GPS::GPS_OK_FIX_3D) {
+    if (assume_zero_sideslip() && AP::gps().status(preferred_gps) < AP_GPS::GPS_OK_FIX_3D) {
         hal.util->snprintf(prearm_fail_string,
                            sizeof(prearm_fail_string),
                            "EKF2 init failure: No GPS lock");
@@ -514,6 +517,9 @@ void NavEKF2_core::UpdateFilter(bool predict)
     irqstate_t istate = irqsave();
 #endif
     hal.util->perf_begin(_perf_UpdateFilter);
+
+    // update sensor selection (for affinity)
+    update_sensor_selection();
 
     // TODO - in-flight restart method
 
