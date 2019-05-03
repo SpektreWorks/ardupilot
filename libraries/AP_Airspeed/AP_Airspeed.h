@@ -159,6 +159,9 @@ public:
     // get current primary sensor
     uint8_t get_primary(void) const { return primary; }
 
+    // get number of sensors
+    uint8_t get_num_sensors(void) const { return num_sensors; }
+    
     static AP_Airspeed *get_singleton() { return _singleton; }
     
 private:
@@ -215,7 +218,8 @@ private:
 
     // current primary sensor
     uint8_t primary;
-    
+    uint8_t num_sensors;
+
     void read(uint8_t i);
     // return the differential pressure in Pascal for the last airspeed reading for the requested instance
     // returns 0 if the sensor is not enabled

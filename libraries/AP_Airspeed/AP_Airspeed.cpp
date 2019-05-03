@@ -283,6 +283,9 @@ void AP_Airspeed::init()
             delete sensor[i];
             sensor[i] = nullptr;
         }
+        if (sensor[i] != nullptr) {
+            num_sensors = i+1;
+        }
     }
 }
 
