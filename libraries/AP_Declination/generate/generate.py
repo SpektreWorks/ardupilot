@@ -1,12 +1,13 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
-generate field tables from IGRF12
+generate field tables from WMM
 '''
 
-import igrf12 as igrf
 import numpy as np
 import datetime
 from pathlib import Path
+from magnetic_field_calculator import MagneticFieldCalculator
+import time
 
 if not Path("AP_Declination.h").is_file():
     raise OSError("Please run this tool from the AP_Declination directory")
@@ -52,12 +53,17 @@ if __name__ == '__main__':
     inclination_table = np.empty((NUM_LAT, NUM_LON))
     declination_table = np.empty((NUM_LAT, NUM_LON))
 
+    dtime = time.strftime('%Y-%m-%d')
+    print("Fetching fields as of %s" % dtime)
+    calc = MagneticFieldCalculator()
+
     for i,lat in enumerate(lats):
         for j,lon in enumerate(lons):
-            mag = igrf.igrf(date, glat=lat, glon=lon, alt_km=0., isv=0, itype=1)
-            intensity_table[i][j] = mag.total/1e5
-            inclination_table[i][j] = mag.incl
-            declination_table[i][j] = mag.decl
+            mag = calc.calculate(latitude=lat, longitude=lon, altitude=0, date=dtime)
+            intensity_table[i][j] = mag['field-value']['total-intensity']['value']/1.0e5
+            inclination_table[i][j] = mag['field-value']['inclination']['value']
+            declination_table[i][j] = mag['field-value']['declination']['value']
+            print(lat, lon, intensity_table[i][j], inclination_table[i][j], declination_table[i][j])
 
     with open("tables.cpp", 'w') as f:
         f.write('''// this is an auto-generated file from the IGRF tables. Do not edit
