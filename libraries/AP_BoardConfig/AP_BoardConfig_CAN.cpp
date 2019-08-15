@@ -35,6 +35,7 @@
 #include <AP_UAVCAN/AP_UAVCAN.h>
 #include <AP_KDECAN/AP_KDECAN.h>
 #include <AP_ToshibaCAN/AP_ToshibaCAN.h>
+#include <AP_uLandingCAN/AP_uLandingCAN.h>
 #include <AP_SerialManager/AP_SerialManager.h>
 extern const AP_HAL::HAL& hal;
 
@@ -172,6 +173,13 @@ void AP_BoardConfig_CAN::init()
 
                 if (_drivers[i]._driver == nullptr) {
                     AP_BoardConfig::sensor_config_error("ToshibaCAN init failed");
+                    continue;
+                }
+            } else if (prot_type == Protocol_Type_uLandingCAN) {
+                _drivers[i]._driver = _drivers[i]._ulandingcan = new AP_uLandingCAN;
+
+                if (_drivers[i]._driver == nullptr) {
+                    AP_BoardConfig::sensor_config_error("uLandingCAN init failed");
                     continue;
                 }
             } else {
