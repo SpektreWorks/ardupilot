@@ -39,6 +39,7 @@
 #include "AP_RangeFinder_PWM.h"
 #include "AP_RangeFinder_BLPing.h"
 #include "AP_RangeFinder_UAVCAN.h"
+#include "AP_RangeFinder_uLanding_CAN.h"
 
 #include <AP_BoardConfig/AP_BoardConfig.h>
 #include <AP_Logger/AP_Logger.h>
@@ -512,6 +513,11 @@ void RangeFinder::detect_instance(uint8_t instance, uint8_t& serial_instance)
             drivers[instance] = new AP_RangeFinder_BLPing(state[instance], params[instance], serial_instance++);
         }
         break;
+#if HAL_WITH_UAVCAN
+    case RangeFinder_TYPE_uLandingCAN:
+        drivers[instance] = new AP_RangeFinder_uLanding_CAN(state[instance], params[instance]);
+        break;
+#endif
     default:
         break;
     }
