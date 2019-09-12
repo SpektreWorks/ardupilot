@@ -932,6 +932,12 @@ const AP_Param::GroupInfo ParametersG2::var_info[] = {
     AP_SUBGROUPINFO(oa, "OA_", 33, ParametersG2, AP_OAPathPlanner),
 #endif
 
+#if MODE_FLIP_ENABLED == ENABLED
+    // @Group: FLIP_
+    // @Path: mode_flip.cpp
+    AP_SUBGROUPPTR(mode_flip_ptr, "FLIP_", 34, ParametersG2, ModeFlip),
+#endif
+    
     AP_GROUPEND
 };
 
@@ -1014,6 +1020,9 @@ ParametersG2::ParametersG2(void)
 #endif
 #if AUTOTUNE_ENABLED == ENABLED
     ,autotune_ptr(&copter.autotune)
+#endif
+#if MODE_FLIP_ENABLED == ENABLED
+    ,mode_flip_ptr(&copter.mode_flip)
 #endif
 {
     AP_Param::setup_object_defaults(this, var_info);
