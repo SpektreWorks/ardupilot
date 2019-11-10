@@ -361,6 +361,10 @@ void SITL_State::_fdm_input_local(void)
                       attitude);
     }
 
+    if (_sitl) {
+        _sitl->efi_ms.update();
+    }
+
     if (_sitl && _use_fg_view) {
         _output_to_flightgear();
     }
