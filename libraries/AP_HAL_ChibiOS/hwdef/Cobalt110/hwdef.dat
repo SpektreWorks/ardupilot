@@ -1,0 +1,7 @@
+# SpektreWorks Cobalt110 Aircraft
+
+include ../CubeBlack/hwdef.dat
+
+# more room for defaults parameter file
+define AP_PARAM_MAX_EMBEDDED_PARAM 16384
+
