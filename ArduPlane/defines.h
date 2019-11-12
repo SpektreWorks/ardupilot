@@ -153,3 +153,10 @@ enum CrowFlapOptions {
     PROGRESSIVE_CROW = (1 << 2),
 }; 
 
+// Harmonic notch update mode
+enum HarmonicNotchDynamicMode {
+    HarmonicNotch_Fixed,
+    HarmonicNotch_UpdateThrottle,
+    HarmonicNotch_UpdateRPM,
+    HarmonicNotch_UpdateBLHeli,
+};

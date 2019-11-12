@@ -474,3 +474,42 @@ int8_t Plane::throttle_percentage(void)
     }
     return constrain_int16(throttle, -100, 100);
 }
+
+// update the harmonic notch filter center frequency dynamically
+void Plane::update_dynamic_notch()
+{
+    const float ref_freq = ins.get_gyro_harmonic_notch_center_freq_hz();
+    const float ref = ins.get_gyro_harmonic_notch_reference();
+
+    if (is_zero(ref)) {
+        ins.update_harmonic_notch_freq_hz(ref_freq);
+        return;
+    }
+
+    switch (ins.get_gyro_harmonic_notch_tracking_mode()) {
+        case HarmonicNotch_UpdateThrottle: // throttle based tracking
+            // set the harmonic notch filter frequency approximately scaled on motor rpm implied by throttle
+            if (quadplane.available()) {
+                ins.update_harmonic_notch_freq_hz(ref_freq * MAX(1.0f, sqrtf(quadplane.motors->get_throttle_out() / ref)));
+            }
+            break;
+
+        case HarmonicNotch_UpdateRPM: // rpm sensor based tracking
+            if (rpm_sensor.healthy(0)) {
+                // set the harmonic notch filter frequency from the main rotor rpm
+                ins.update_harmonic_notch_freq_hz(MAX(ref_freq, rpm_sensor.get_rpm(0) * ref / 60.0f));
+            } else {
+                ins.update_harmonic_notch_freq_hz(ref_freq);
+            }
+            break;
+#ifdef HAVE_AP_BLHELI_SUPPORT
+        case HarmonicNotch_UpdateBLHeli: // BLHeli based tracking
+            ins.update_harmonic_notch_freq_hz(MAX(ref_freq, AP_BLHeli::get_singleton()->get_average_motor_frequency_hz() * ref));
+            break;
+#endif
+        case HarmonicNotch_Fixed: // static
+        default:
+            ins.update_harmonic_notch_freq_hz(ref_freq);
+            break;
+    }
+}
