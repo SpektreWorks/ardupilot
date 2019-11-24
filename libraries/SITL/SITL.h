@@ -16,6 +16,7 @@
 #include "SIM_Sprayer.h"
 #include "SIM_ToneAlarm.h"
 #include "SIM_EFI_MegaSquirt.h"
+#include "SIM_EFI_EMUECU.h"
 
 namespace SITL {
 
@@ -190,6 +191,7 @@ public:
     enum EFIType {
         EFI_TYPE_NONE = 0,
         EFI_TYPE_MS = 1,
+        EFI_TYPE_EMU = 2,
     };
     
     AP_Int8  efi_type;
@@ -340,6 +342,7 @@ public:
     } led;
 
     EFI_MegaSquirt efi_ms;
+    EFI_EMUECU efi_emu;
 };
 
 } // namespace SITL
