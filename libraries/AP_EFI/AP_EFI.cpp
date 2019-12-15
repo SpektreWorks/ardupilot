@@ -179,7 +179,10 @@ void AP_EFI::send_mavlink_status(mavlink_channel_t chan)
         (state.intake_manifold_temperature - 273.0f),
         (state.cylinder_status[0].cylinder_head_temperature - 273.0f),
         state.cylinder_status[0].ignition_timing_deg,
-        state.cylinder_status[0].injection_time_ms);
+        state.cylinder_status[0].injection_time_ms,
+        state.cylinder_status[0].exhaust_gas_temperature,
+        state.throttle_position_percent,
+        state.pt_c);
 }
 
 namespace AP {
