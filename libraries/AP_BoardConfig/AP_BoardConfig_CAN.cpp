@@ -36,6 +36,8 @@
 #include <AP_KDECAN/AP_KDECAN.h>
 #include <AP_ToshibaCAN/AP_ToshibaCAN.h>
 #include <AP_SerialManager/AP_SerialManager.h>
+#include <AP_EFI/AP_EFI_NWPMU.h>
+
 extern const AP_HAL::HAL& hal;
 
 // table of user settable parameters
@@ -174,6 +176,20 @@ void AP_BoardConfig_CAN::init()
                     AP_BoardConfig::sensor_config_error("ToshibaCAN init failed");
                     continue;
                 }
+#if EFI_ENABLED
+            } else if (prot_type == Protocol_Type_NWPMU) {
+                AP_EFI *efi = AP::EFI();
+                if (efi == nullptr) {
+                    AP_BoardConfig::sensor_config_error("NWPMU init failed (no EFI)");
+                    continue;
+                }
+                _drivers[i]._driver = new AP_EFI_NWPMU(*efi);
+
+                if (_drivers[i]._driver == nullptr) {
+                    AP_BoardConfig::sensor_config_error("NWPMU init failed");
+                    continue;
+                }
+#endif
             } else {
                 continue;
             }
