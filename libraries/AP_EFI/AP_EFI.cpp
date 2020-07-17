@@ -18,10 +18,10 @@
 #if EFI_ENABLED
 
 #include "AP_EFI_Serial_MS.h"
-#include "AP_EFI_NWPMU.h"
 #include <AP_Logger/AP_Logger.h>
 
 #if HAL_WITH_UAVCAN
+  #include "AP_EFI_NWPMU.h"
   #include <AP_BoardConfig/AP_BoardConfig_CAN.h>
 #endif // HAL_WITH_UAVCAN
 
