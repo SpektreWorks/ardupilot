@@ -31,65 +31,65 @@
  *
  ***************/
 
-enum Engine_State {
-    ENGINE_STATE_STOPPED  = 0,
-    ENGINE_STATE_STARTING = 1,
-    ENGINE_STATE_RUNNING  = 2,
-    ENGINE_STATE_FAULT    = 3
+enum class Engine_State : uint8_t {
+    STOPPED  = 0,
+    STARTING = 1,
+    RUNNING  = 2,
+    FAULT    = 3
 };
 
-enum Crankshaft_Sensor_Status {
-    CRANKSHAFT_SENSOR_STATUS_NOT_SUPPORTED = 0,
-    CRANKSHAFT_SENSOR_OK                   = 1,
-    CRANKSHAFT_SENSOR_ERROR                = 2
+enum class Crankshaft_Sensor_Status : uint8_t {
+    NOT_SUPPORTED = 0,
+    OK            = 1,
+    ERROR         = 2
 };
 
-enum Temperature_Status {
-    TEMPERATURE_STATUS_NOT_SUPPORTED       = 0,
-    TEMPERATURE_OK                         = 1,
-    TEMPERATURE_BELOW_NOMINAL              = 2,
-    TEMPERATURE_ABOVE_NOMINAL              = 3,
-    TEMPERATURE_OVERHEATING                = 4,
-    TEMPERATURE_EGT_ABOVE_NOMINAL          = 5
+enum class Temperature_Status : uint8_t {
+    NOT_SUPPORTED       = 0,
+    OK                  = 1,
+    BELOW_NOMINAL       = 2,
+    ABOVE_NOMINAL       = 3,
+    OVERHEATING         = 4,
+    EGT_ABOVE_NOMINAL   = 5
 };
 
-enum Fuel_Pressure_Status {
-    FUEL_PRESSURE_STATUS_NOT_SUPPORTED = 0,
-    FUEL_PRESSURE_OK                   = 1,
-    FUEL_PRESSURE_BELOW_NOMINAL        = 2,
-    FUEL_PRESSURE_ABOVE_NOMINAL        = 3
+enum class Fuel_Pressure_Status : uint8_t {
+    NOT_SUPPORTED        = 0,
+    OK                   = 1,
+    BELOW_NOMINAL        = 2,
+    ABOVE_NOMINAL        = 3
 };
 
-enum Oil_Pressure_Status {
+enum class Oil_Pressure_Status : uint8_t {
     OIL_PRESSURE_STATUS_NOT_SUPPORTED = 0,
     OIL_PRESSURE_OK                   = 1,
     OIL_PRESSURE_BELOW_NOMINAL        = 2,
     OIL_PRESSURE_ABOVE_NOMINAL        = 3
 };
 
-enum Detonation_Status {
-    DETONATION_STATUS_NOT_SUPPORTED = 0,
-    DETONATION_NOT_OBSERVED         = 1,
-    DETONATION_OBSERVED             = 2
+enum class Detonation_Status : uint8_t {
+    NOT_SUPPORTED  = 0,
+    NOT_OBSERVED   = 1,
+    OBSERVED       = 2
 };
 
-enum Misfire_Status {
-    MISFIRE_STATUS_NOT_SUPPORTED = 0,
-    MISFIRE_NOT_OBSERVED         = 1,
-    MISFIRE_OBSERVED             = 2
+enum class Misfire_Status : uint8_t {
+    NOT_SUPPORTED = 0,
+    NOT_OBSERVED  = 1,
+    OBSERVED      = 2
 };
 
-enum Debris_Status {
-    DEBRIS_STATUS_NOT_SUPPORTED = 0,
-    DEBRIS_NOT_DETECTED         = 1,
-    DEBRIS_DETECTED             = 2
+enum class Debris_Status : uint8_t {
+    NOT_SUPPORTED = 0,
+    NOT_DETECTED  = 1,
+    DETECTED      = 2
 };
 
-enum Spark_Plug_Usage {
-    SPARK_PLUG_SINGLE        = 0,
-    SPARK_PLUG_FIRST_ACTIVE  = 1,
-    SPARK_PLUG_SECOND_ACTIVE = 2,
-    SPARK_PLUG_BOTH_ACTIVE   = 3
+enum class Spark_Plug_Usage : uint8_t {
+    SINGLE        = 0,
+    FIRST_ACTIVE  = 1,
+    SECOND_ACTIVE = 2,
+    BOTH_ACTIVE   = 3
 };
 
 
@@ -129,25 +129,25 @@ struct EFI_State {
     uint32_t last_updated_ms;
 
     // Current overall engine state
-    Engine_State engine_state                         : 2;
+    Engine_State engine_state;
  
     // If there is an error that does not fit other error types
-    bool general_error                                : 1;
+    bool general_error;
 
     // Error/status fields 
-    Crankshaft_Sensor_Status crankshaft_sensor_status : 2;
-    Temperature_Status temperature_status             : 3;
-    Fuel_Pressure_Status fuel_pressure_status         : 2;
-    Oil_Pressure_Status oil_pressure_status           : 2;
-    Detonation_Status detonation_status               : 2;
-    Misfire_Status misfire_status                     : 2;
-    Debris_Status debris_status                       : 2;
+    Crankshaft_Sensor_Status crankshaft_sensor_status;
+    Temperature_Status temperature_status;
+    Fuel_Pressure_Status fuel_pressure_status;
+    Oil_Pressure_Status oil_pressure_status;
+    Detonation_Status detonation_status;
+    Misfire_Status misfire_status;
+    Debris_Status debris_status;
 
     // Engine load (percent)
-    uint8_t engine_load_percent                       : 7;
+    uint8_t engine_load_percent;
     
     // Engine speed (revolutions per minute)
-    uint32_t engine_speed_rpm                         : 17;
+    uint32_t engine_speed_rpm;
 
     // Spark dwell time (milliseconds)
     float spark_dwell_time_ms;
@@ -183,10 +183,10 @@ struct EFI_State {
     float estimated_consumed_fuel_volume_cm3;
 
     // Throttle position (percent)
-    uint8_t throttle_position_percent                 : 7;
+    uint8_t throttle_position_percent;
 
     // The index of the publishing ECU.
-    uint8_t ecu_index                                 : 6;
+    uint8_t ecu_index;
 
     // Spark plug activity report.
     // Can be used during pre-flight tests of the spark subsystem.
