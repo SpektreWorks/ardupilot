@@ -80,14 +80,14 @@ void AP_EFI::init(void)
             backend = new AP_EFI_Serial_MS(*this);
             break;
         case EFI_COMMUNICATION_TYPE_NWPMU:
-#if HAL_WITH_UAVCAN
+#if HAL_WITH_UAVCAN && AP_EFI_NWPMU_ENABLED
             for (uint8_t i = 0; i < AP::can().get_num_drivers(); i++) {
                 backend = AP_EFI_NWPMU::get_singleton(i);
                 if (backend != nullptr) {
                     break;
                 }
             }
-#endif // HAL_WITH_UAVCAN
+#endif // HAL_WITH_UAVCAN && AP_EFI_NWPMU_ENABLED
             break;
     }
 }

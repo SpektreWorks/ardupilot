@@ -25,6 +25,12 @@
 #include <AP_HAL/CAN.h>
 #include <AP_HAL/Semaphores.h>
 
+#ifndef AP_EFI_NWPMU_ENABLED
+    #define AP_EFI_NWPMU_ENABLED 0
+#endif
+
+#if AP_EFI_NWPMU_ENABLED
+
 class AP_EFI_NWPMU : public AP_HAL::CANProtocol, public AP_EFI_Backend {
 public:
     AP_EFI_NWPMU(AP_EFI &_frontend);
@@ -121,3 +127,4 @@ private:
     static const uint8_t CAN_IFACE_INDEX = 0; // FIXME: why do we need this, what does it mean?
 
 };
+#endif // AP_EFI_NWPMU_ENABLED
