@@ -176,7 +176,7 @@ void AP_BoardConfig_CAN::init()
                     AP_BoardConfig::sensor_config_error("ToshibaCAN init failed");
                     continue;
                 }
-#if EFI_ENABLED
+#if EFI_ENABLED && AP_EFI_NWPMU_ENABLED
             } else if (prot_type == Protocol_Type_NWPMU) {
                 AP_EFI *efi = AP::EFI();
                 if (efi == nullptr) {
