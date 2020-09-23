@@ -770,8 +770,15 @@ bool AP_Arming::can_checks(bool report)
 #endif
                 }
                 case AP_BoardConfig_CAN::Protocol_Type_UAVCAN:
-                case AP_BoardConfig_CAN::Protocol_Type_NWPMU:
+                {
+                    snprintf(fail_msg, ARRAY_SIZE(fail_msg), "UAVCAN failed");
+                    if (!AP::uavcan_server().prearm_check(fail_msg, ARRAY_SIZE(fail_msg))) {
+                        check_failed(ARMING_CHECK_SYSTEM, report, "%s", fail_msg);
+                        return false;
+                    }
+                }
                 case AP_BoardConfig_CAN::Protocol_Type_None:
+                case AP_BoardConfig_CAN::Protocol_Type_NWPMU:
                 default:
                     break;
             }
