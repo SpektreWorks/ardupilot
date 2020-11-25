@@ -313,22 +313,22 @@ void AP_Logger::Write_IMU_instance(const uint64_t time_us, const uint8_t imu_ins
 // Write an raw accel/gyro data packet
 void AP_Logger::Write_IMU()
 {
-    uint64_t time_us = AP_HAL::micros64();
-
-    const AP_InertialSensor &ins = AP::ins();
-
-    Write_IMU_instance(time_us, 0, LOG_IMU_MSG);
-    if (ins.get_gyro_count() < 2 && ins.get_accel_count() < 2) {
-        return;
-    }
-
-    Write_IMU_instance(time_us, 1, LOG_IMU2_MSG);
-
-    if (ins.get_gyro_count() < 3 && ins.get_accel_count() < 3) {
-        return;
-    }
-
-    Write_IMU_instance(time_us, 2, LOG_IMU3_MSG);
+//    uint64_t time_us = AP_HAL::micros64();
+//
+//    const AP_InertialSensor &ins = AP::ins();
+//
+//    Write_IMU_instance(time_us, 0, LOG_IMU_MSG);
+//    if (ins.get_gyro_count() < 2 && ins.get_accel_count() < 2) {
+//        return;
+//    }
+//
+//    Write_IMU_instance(time_us, 1, LOG_IMU2_MSG);
+//
+//    if (ins.get_gyro_count() < 3 && ins.get_accel_count() < 3) {
+//        return;
+//    }
+//
+//    Write_IMU_instance(time_us, 2, LOG_IMU3_MSG);
 }
 
 // Write an accel/gyro delta time data packet

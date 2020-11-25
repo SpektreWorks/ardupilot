@@ -233,55 +233,55 @@ void NavEKF2::Log_Write_Beacon(uint64_t time_us) const
 
 void NavEKF2::Log_Write()
 {
-    // only log if enabled
-    if (activeCores() <= 0) {
-        return;
-    }
-
-    const uint64_t time_us = AP_HAL::micros64();
-
-    Log_Write_EKF1(0, LOG_NKF1_MSG, time_us);
-    Log_Write_NKF2(0, LOG_NKF2_MSG, time_us);
-    Log_Write_NKF3(0, LOG_NKF3_MSG, time_us);
-    Log_Write_NKF4(0, LOG_NKF4_MSG, time_us);
-    Log_Write_NKF5(time_us);
-    Log_Write_Quaternion(0, LOG_NKQ1_MSG, time_us);
-
-    // log EKF state info for the second EFK core if enabled
-    if (activeCores() >= 2) {
-        Log_Write_EKF1(1, LOG_NKF6_MSG, time_us);
-        Log_Write_NKF2(1, LOG_NKF7_MSG, time_us);
-        Log_Write_NKF3(1, LOG_NKF8_MSG, time_us);
-        Log_Write_NKF4(1, LOG_NKF9_MSG, time_us);
-        Log_Write_Quaternion(1, LOG_NKQ2_MSG, time_us);
-    }
-
-    // log EKF state info for the third EFK core if enabled
-    if (activeCores() >= 3) {
-        Log_Write_EKF1(2, LOG_NKF11_MSG, time_us);
-        Log_Write_NKF2(2, LOG_NKF12_MSG, time_us);
-        Log_Write_NKF3(2, LOG_NKF13_MSG, time_us);
-        Log_Write_NKF4(2, LOG_NKF14_MSG, time_us);
-        Log_Write_Quaternion(2, LOG_NKQ3_MSG, time_us);
-    }
-
-    // write range beacon fusion debug packet if the range value is non-zero
-    Log_Write_Beacon(time_us);
-
-    // log EKF timing statistics every 5s
-    static uint32_t lastTimingLogTime_ms = 0;
-    if (AP_HAL::millis() - lastTimingLogTime_ms > 5000) {
-        lastTimingLogTime_ms = AP_HAL::millis();
-        struct ekf_timing timing;
-        for (uint8_t i=0; i<activeCores(); i++) {
-            getTimingStatistics(i, timing);
-            if (i == 0) {
-                Log_EKF_Timing("NKT1", time_us, timing);
-            } else if (i == 1) {
-                Log_EKF_Timing("NKT2", time_us, timing);
-            } else if (i == 2) {
-                Log_EKF_Timing("NKT3", time_us, timing);
-            }
-        }
-    }
+//    // only log if enabled
+//    if (activeCores() <= 0) {
+//        return;
+//    }
+//
+//    const uint64_t time_us = AP_HAL::micros64();
+//
+//    Log_Write_EKF1(0, LOG_NKF1_MSG, time_us);
+//    Log_Write_NKF2(0, LOG_NKF2_MSG, time_us);
+//    Log_Write_NKF3(0, LOG_NKF3_MSG, time_us);
+//    Log_Write_NKF4(0, LOG_NKF4_MSG, time_us);
+//    Log_Write_NKF5(time_us);
+//    Log_Write_Quaternion(0, LOG_NKQ1_MSG, time_us);
+//
+//    // log EKF state info for the second EFK core if enabled
+//    if (activeCores() >= 2) {
+//        Log_Write_EKF1(1, LOG_NKF6_MSG, time_us);
+//        Log_Write_NKF2(1, LOG_NKF7_MSG, time_us);
+//        Log_Write_NKF3(1, LOG_NKF8_MSG, time_us);
+//        Log_Write_NKF4(1, LOG_NKF9_MSG, time_us);
+//        Log_Write_Quaternion(1, LOG_NKQ2_MSG, time_us);
+//    }
+//
+//    // log EKF state info for the third EFK core if enabled
+//    if (activeCores() >= 3) {
+//        Log_Write_EKF1(2, LOG_NKF11_MSG, time_us);
+//        Log_Write_NKF2(2, LOG_NKF12_MSG, time_us);
+//        Log_Write_NKF3(2, LOG_NKF13_MSG, time_us);
+//        Log_Write_NKF4(2, LOG_NKF14_MSG, time_us);
+//        Log_Write_Quaternion(2, LOG_NKQ3_MSG, time_us);
+//    }
+//
+//    // write range beacon fusion debug packet if the range value is non-zero
+//    Log_Write_Beacon(time_us);
+//
+//    // log EKF timing statistics every 5s
+//    static uint32_t lastTimingLogTime_ms = 0;
+//    if (AP_HAL::millis() - lastTimingLogTime_ms > 5000) {
+//        lastTimingLogTime_ms = AP_HAL::millis();
+//        struct ekf_timing timing;
+//        for (uint8_t i=0; i<activeCores(); i++) {
+//            getTimingStatistics(i, timing);
+//            if (i == 0) {
+//                Log_EKF_Timing("NKT1", time_us, timing);
+//            } else if (i == 1) {
+//                Log_EKF_Timing("NKT2", time_us, timing);
+//            } else if (i == 2) {
+//                Log_EKF_Timing("NKT3", time_us, timing);
+//            }
+//        }
+//    }
 }
