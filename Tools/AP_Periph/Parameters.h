@@ -38,6 +38,7 @@ public:
         k_param_msp_port,
         k_param_notify,
         k_param_esc_number_1,
+        k_param_esc_pwm_type,
     };
 
     AP_Int16 format_version;
@@ -87,7 +88,11 @@ public:
 #ifdef HAL_PERIPH_ENABLE_MSP
     AP_Int8 msp_port;
 #endif
-    
+
+#ifdef HAL_PERIPH_ENABLE_RC_OUT
+    AP_Int8 esc_pwm_type;
+#endif
+
     AP_Int8 debug;
 
     AP_Int32 serial_number;
