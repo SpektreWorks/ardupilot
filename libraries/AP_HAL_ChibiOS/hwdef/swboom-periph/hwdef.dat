@@ -1,0 +1,117 @@
+###########################################################################################################################################################
+# SpektreWorks
+###########################################################################################################################################################
+
+# default to all pins low to avoid ESD issues
+DEFAULTGPIO OUTPUT LOW PULLDOWN
+
+# MCU class and specific type
+MCU STM32H7xx STM32H743xx
+
+# setup build for a peripheral firmware
+env AP_PERIPH 1
+define PERIPH_FW TRUE
+define HAL_BUILD_AP_PERIPH
+define HAL_USE_ADC TRUE
+define STM32_ADC_USE_ADC1 TRUE
+
+#define HAL_PERIPH_ENABLE_ESC_APD 1
+#define APD_ESC_INSTANCES 1
+#define APD_ESC_SERIAL_0 2
+
+#define HAL_LED_ON 1
+
+# board ID for firmware load
+APJ_BOARD_ID 1403
+
+# crystal frequency
+OSCILLATOR_HZ 8000000
+
+FLASH_SIZE_KB 2048
+
+# with 2M flash we can afford to optimize for speed
+env OPTIMIZE -O2
+
+# start as DNA
+define HAL_CAN_DEFAULT_NODE_ID 103
+
+define CAN_APP_NODE_NAME "com.Spektreworks.SW01"
+
+# reserve 256 bytes for comms between app and bootloader
+RAM_RESERVE_START 256
+
+define HAL_NO_GCS
+define HAL_NO_LOGGING
+define HAL_NO_MONITOR_THREAD
+define HAL_DISABLE_LOOP_DELAY
+define HAL_USE_RTC FALSE
+define DISABLE_SERIAL_ESC_COMM TRUE
+define NO_DATAFLASH TRUE
+define HAL_NO_RCIN_THREAD
+define HAL_BARO_ALLOW_INIT_NO_BARO
+define HAL_PERIPH_ENABLE_RC_OUT
+define HAL_PERIPH_ENABLE_BATTERY
+define HAL_PERIPH_BATTERY_SKIP_NAME TRUE
+
+define HAL_PERIPH_ENABLE_ESC_APD TRUE
+define APD_ESC_INSTANCES 2
+define APD_ESC_SERIAL_0 1 #which serial number to use
+define APD_ESC_SERIAL_1 0 #which serial number to use
+
+# start on 2th sector (1st sector for bootloader)
+FLASH_RESERVE_START_KB 128
+
+# use the app descriptor needed by MissionPlanner for CAN upload
+env APP_DESCRIPTOR MissionPlanner
+
+# Define a LED, mapping it to GPIO(0). LOW will illuminate the LED
+# PC8 FMU_LED_AMBER OUTPUT HIGH OPENDRAIN GPIO(0)
+# define HAL_GPIO_PIN_LED HAL_GPIO_PIN_FMU_LED_AMBER
+
+# a LED to flash
+PC8 LED OUTPUT LOW
+
+# order of UARTs (and USB) and suggested usage
+# USART2 Telem 1 (Flow Control)
+
+SERIAL_ORDER USART2 USART3
+
+#define HAL_USE_EMPTY_STORAGE 1
+define HAL_STORAGE_SIZE 16384
+
+# use last 2 pages for flash storage
+# H743 has 16 pages of 128k each
+define STORAGE_FLASH_PAGE 14
+
+PA13 JTMS-SWDIO SWD
+PA14 JTCK-SWCLK SWD
+
+# Another USART, this one for telem1. This one has RTS and CTS lines.
+# USART2 and USART3
+PD5 USART2_TX USART2
+PD6 USART2_RX USART2
+PD8 USART3_TX USART3
+PD9 USART3_RX USART3
+
+# the first CAN bus
+PD0 CAN1_RX CAN1
+PD1 CAN1_TX CAN1
+# PA10 GPIO_CAN1_SILENT OUTPUT PUSHPULL SPEED_LOW LOW GPIO(72)
+PA10 TEST OUTPUT LOW PULLDOWN
+
+# Now we start defining some PWM pins. We also map these pins to GPIO
+# values, so users can set BRD_PWM_COUNT to choose how many of the PWM
+# outputs on the primary MCU are setup as PWM and how many as
+# GPIOs. To match HAL_PX4 we number the GPIOs for the PWM outputs
+# starting at 50.
+PD13 TIM4_CH2 TIM4 PWM(1) #Rudder
+PD14 TIM4_CH3 TIM4 PWM(2) #Elevator
+PE11 TIM1_CH2 TIM1 PWM(3) #ESC
+PE9  TIM1_CH1 TIM1 PWM(4) #ESC
+PE14 TIM1_CH4 TIM1 PWM(5) GPIO(5)
+PE13 TIM1_CH3 TIM1 PWM(6) GPIO(6)
+
+PA2 ADC1_PIN_14 ADC1 SCALE(1) #Batt Voltage
+PA3 ADC1_PIN_15 ADC1 SCALE(1) #Batt Current
+PA4 ADC1_PIN_18 ADC1 SCALE(1) #5V board voltage
+PC4 ADC1_PIN_4 ADC1 SCALE(1)  #Thermistor
