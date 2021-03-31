@@ -91,6 +91,11 @@ public:
     bool is_armed() const;
     bool is_armed_and_safety_off() const;
 
+    // fetch how long we have been armed for
+    // returns 0 if disarmed
+    // NOTE: this can wrap on long missions
+    uint32_t armed_time_ms();
+
     // get bitmask of enabled checks
     uint32_t get_enabled_checks() const;
 
@@ -276,6 +281,8 @@ private:
 
     uint32_t last_prearm_display_ms;  // last time we send statustexts for prearm failures
     bool running_arming_checks;  // true if the arming checks currently being performed are being done because the vehicle is trying to arm the vehicle
+
+    uint32_t armed_at_ms;
 };
 
 namespace AP {

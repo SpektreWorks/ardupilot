@@ -1561,6 +1561,8 @@ bool AP_Arming::arm(AP_Arming::Method method, const bool do_arming_checks)
 
         _last_arm_method = method;
 
+        armed_at_ms = AP_HAL::millis();
+
         Log_Write_Arm(!do_arming_checks, method); // note Log_Write_Armed takes forced not do_arming_checks
 
     } else {
@@ -1817,6 +1819,13 @@ void AP_Arming::check_forced_logging(const AP_Arming::Method method)
             AP::logger().set_long_log_persist(false);
             return;
     };
+}
+
+uint32_t AP_Arming::armed_time_ms() {
+    if (is_armed()) {
+        return AP_HAL::millis() - armed_at_ms;
+    }
+    return 0;
 }
 
 AP_Arming *AP_Arming::_singleton = nullptr;
