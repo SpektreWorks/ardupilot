@@ -2,4 +2,4 @@ include ../swboom-periph/hwdef.dat
 
 # pull Solo's default parameters from /Tools/Frame_params
 # these are parameters the Solo requires for proper operation that are different from the 4 standard defaults.
-env DEFAULT_PARAMETERS 'libraries/AP_HAL_ChibiOS/hwdef/swboom-periph-left/default.param'
+env DEFAULT_PARAMETERS 'libraries/AP_HAL_ChibiOS/hwdef/swboom-periph-right/default.param'
