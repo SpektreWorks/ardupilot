@@ -331,6 +331,9 @@ private:
     // time before transition that we start motors
     AP_Float pre_transition_time;
 
+    // Motor failure disarm time
+    AP_Float motor_failure_disarm_time;
+
     // time we last got an EKF yaw reset
     uint32_t ekfYawReset_ms;
 

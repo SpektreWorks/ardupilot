@@ -477,6 +477,13 @@ const AP_Param::GroupInfo QuadPlane::var_info2[] = {
     // @RebootRequired: False
     AP_GROUPINFO("PRETRANS_TIME", 21, QuadPlane, pre_transition_time, 0),
 
+    // @Param: M_FAIL_DIS_TIM
+    // @DisplayName: Motor failure disarm time
+    // @Description: Time since armed that a motor failure detection can trigger a disarm
+    // @Units: s
+    // @RebootRequired: False
+    AP_GROUPINFO("M_FAIL_DIS_TIM", 22, QuadPlane, motor_failure_disarm_time, 2),
+
     AP_GROUPEND
 };
 
@@ -1768,7 +1775,7 @@ void QuadPlane::update(void)
             // select a resolution to the problem
 
             // if we think we are taking off just disarm
-            const uint32_t max_time_since_arming = 2000;
+            const uint32_t max_time_since_arming = uint32_t(motor_failure_disarm_time * 1000);
             if ((AP::arming().armed_time_ms() < max_time_since_arming)
                 && (plane.relative_ground_altitude(plane.g.rangefinder_landing) < 1)) {
                 gcs().send_text(MAV_SEVERITY_WARNING, "Motor failure resolution: disarm");
@@ -1838,10 +1845,6 @@ void QuadPlane::update(void)
     }
 
     tiltrotor_update();
-
-    if (motors->get_spool_state() == AP_Motors::SpoolState::SPOOLING_UP) {
-        gcs().send_text(MAV_SEVERITY_INFO, "Spooling");
-    }
 }
 
 /*
