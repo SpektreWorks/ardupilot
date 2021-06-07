@@ -636,8 +636,8 @@ void AP_MotorsMulticopter::output_logic()
                         AP_UAVCAN *uavcan = AP_UAVCAN::get_uavcan(i);
                         if (uavcan != nullptr) {
                             // just assume a multicopter for now
-                            for (uint8_t motor = 0; motor < 4; i++) {
-                                if (uavcan->get_rpm(motor, rpm) && (rpm > _max_rpm)) {
+                            for (uint8_t motor = 0; motor < 4; motor++) {
+                                if (!uavcan->get_rpm(motor, rpm) || ((uint32_t)rpm > _max_rpm.get())) {
                                     _rpm_valid = false;
                                 }
                             }
