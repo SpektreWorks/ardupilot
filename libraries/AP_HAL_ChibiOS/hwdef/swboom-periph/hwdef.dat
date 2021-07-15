@@ -35,7 +35,7 @@ env OPTIMIZE -O2
 # start as DNA
 define HAL_CAN_DEFAULT_NODE_ID 103
 
-define CAN_APP_NODE_NAME "com.Spektreworks.SW01"
+define CAN_APP_NODE_NAME "com.SW.boom"
 
 # reserve 256 bytes for comms between app and bootloader
 RAM_RESERVE_START 256
