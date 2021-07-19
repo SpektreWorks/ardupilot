@@ -1261,7 +1261,7 @@ void QuadPlane::control_loiter()
             poscontrol.state = QPOS_LAND_FINAL;
             // cut IC engine if enabled
             if (land_icengine_cut != 0) {
-                plane.g2.ice_control.engine_control(0, 0, 0);
+                plane.g2.ice_control.engine_control(0, 0, 0, 0);
             }
         }
         float height_above_ground = plane.relative_ground_altitude(plane.g.rangefinder_landing);
@@ -2814,7 +2814,7 @@ bool QuadPlane::verify_vtol_land(void)
 
         // cut IC engine if enabled
         if (land_icengine_cut != 0) {
-            plane.g2.ice_control.engine_control(0, 0, 0);
+            plane.g2.ice_control.engine_control(0, 0, 0, 0);
         }
         gcs().send_text(MAV_SEVERITY_INFO,"Land final started");
     }
