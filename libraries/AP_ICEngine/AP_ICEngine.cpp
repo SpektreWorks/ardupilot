@@ -207,6 +207,11 @@ void AP_ICEngine::update(void)
         should_run = true;
     } else if (start_chan_last_value <= 1300) {
         should_run = false;
+
+        // clear the single start flag now that we will be stopping the engine
+        if (state != ICE_OFF) {
+            allow_single_start_while_disarmed = false;
+        }
     } else if (state != ICE_OFF) {
         should_run = true;
     }
@@ -217,8 +222,10 @@ void AP_ICEngine::update(void)
     }
 
     if ((options & uint16_t(Options::NO_STARTING_WHILE_DISARMED)) && !hal.util->get_soft_armed()) {
-        // no starting while disarmed
-        should_run = false;
+        if (!allow_single_start_while_disarmed) {
+            // no starting while disarmed
+            should_run = false;
+        }
     }
 
     // switch on current state to work out new state
@@ -354,8 +361,11 @@ bool AP_ICEngine::throttle_override(uint8_t &percentage)
 /*
   handle DO_ENGINE_CONTROL messages via MAVLink or mission
 */
-bool AP_ICEngine::engine_control(float start_control, float cold_start, float height_delay)
+bool AP_ICEngine::engine_control(float start_control, float cold_start, float height_delay, float allow_disarmed)
 {
+    // always update the start while disarmed flag
+    allow_single_start_while_disarmed = is_equal(allow_disarmed, 1.0f);
+
     if (start_control <= 0) {
         state = ICE_OFF;
         return true;
@@ -452,7 +462,6 @@ void AP_ICEngine::update_idle_governor(int8_t &min_throttle)
 
     min_throttle = roundf(idle_governor_integrator);
 }
-
 
 // singleton instance. Should only ever be set in the constructor.
 AP_ICEngine *AP_ICEngine::_singleton;
