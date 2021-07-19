@@ -121,7 +121,8 @@ private:
     float idle_governor_integrator;
 
     enum class Options : uint16_t {
-        DISABLE_IGNITION_RC_FAILSAFE=(1U<<0),
+        DISABLE_IGNITION_RC_FAILSAFE = (1U<<0),
+        NO_STARTING_WHILE_DISARMED   = (1U<<1),
     };
     AP_Int16 options;
 

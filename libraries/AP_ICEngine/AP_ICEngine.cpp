@@ -216,6 +216,11 @@ void AP_ICEngine::update(void)
         should_run = false;
     }
 
+    if ((options & uint16_t(Options::NO_STARTING_WHILE_DISARMED)) && !hal.util->get_soft_armed()) {
+        // no starting while disarmed
+        should_run = false;
+    }
+
     // switch on current state to work out new state
     switch (state) {
     case ICE_OFF:
