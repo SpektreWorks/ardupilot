@@ -165,7 +165,7 @@ void AP_ICEngine::update(void)
         if (cvalue >= 1700) {
             cvalue = 2000;
         } else if ((cvalue > 800) && (cvalue <= 1300)) {
-            cvalue = 1300;
+            cvalue = 1000;
         } else {
             cvalue = 1500;
         }
@@ -189,6 +189,10 @@ void AP_ICEngine::update(void)
         should_run = true;
     } else if (start_chan_last_value <= 1300) {
         should_run = false;
+    } else if ( start_chan_last_value == 1500) {
+        //For use with external starters
+        should_run = true;
+        state = ICE_RUNNING;
     } else if (state != ICE_OFF) {
         should_run = true;
     }
@@ -239,7 +243,7 @@ void AP_ICEngine::update(void)
         if (!should_run) {
             state = ICE_OFF;
             gcs().send_text(MAV_SEVERITY_INFO, "Stopped engine");
-        } else if (rpm_instance > 0) {
+        } else if ((rpm_instance > 0) && (start_chan_last_value != 1500)) {
             // check RPM to see if still running
             if (!rpm.healthy(rpm_instance-1) ||
                 rpm.get_rpm(rpm_instance-1) < rpm_threshold) {
