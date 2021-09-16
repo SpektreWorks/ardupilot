@@ -96,6 +96,13 @@ const AP_Param::GroupInfo AP_UAVCAN::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("SRV_RT", 4, AP_UAVCAN, _servo_rate_hz, 50),
 
+    // @Param: OPTION
+    // @DisplayName: UAVCAN options
+    // @Description: Option flags
+    // @Bitmask: 0:ClearDNADatabase,1:IgnoreDNANodeConflicts
+    // @User: Advanced
+    AP_GROUPINFO("OPTION", 5, AP_UAVCAN, _options, 0),
+    
     AP_GROUPEND
 };
 
@@ -877,6 +884,17 @@ bool AP_UAVCAN::is_esc_data_index_valid(const uint8_t index) {
         return false;
     }
     return true;
+}
+
+// check if a option is set and if it is then reset it to 0.
+// return true if it was set
+bool AP_UAVCAN::check_and_reset_option(Options option)
+{
+    bool ret = check_option(option);
+    if (ret) {
+        _options.set_and_save(int16_t(_options.get() & ~uint16_t(option)));
+    }
+    return ret;
 }
 
 #endif // HAL_WITH_UAVCAN
