@@ -441,6 +441,9 @@ private:
           TILT_TYPE_BICOPTER      =3
     };
 
+    uint32_t last_passed_current_check_ms;
+    AP_Float motor_failure_current_high_threshold;
+
     // tiltrotor control variables
     struct {
         AP_Int16 tilt_mask;

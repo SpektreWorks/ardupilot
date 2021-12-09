@@ -484,6 +484,13 @@ const AP_Param::GroupInfo QuadPlane::var_info2[] = {
     // @RebootRequired: False
     AP_GROUPINFO("M_FAIL_DIS_TIM", 22, QuadPlane, motor_failure_disarm_time, 2),
 
+    // @Param: M_FAIL_BAT_VLT
+    // @DisplayName: Motor failure for bad battery install time
+    // @Description: High voltage threshold to trigger a qland abort. 0 disables the check
+    // @Units: V
+    // @RebootRequired: False
+    AP_GROUPINFO("M_FAIL_BAT_VLT", 23, QuadPlane, motor_failure_current_high_threshold, 0),
+
     AP_GROUPEND
 };
 
@@ -1785,6 +1792,37 @@ void QuadPlane::update(void)
                 gcs().send_text(MAV_SEVERITY_WARNING, "Motor failure resolution: RTL");
                 plane.set_mode(plane.mode_rtl, ModeReason::FAILSAFE);
             }
+        }
+
+        // if we are running the motors, and not in QLAND then check for a battery imbalance
+        if ((motors->get_spool_state() == AP_Motors::SpoolState::THROTTLE_UNLIMITED) &&
+            (plane.control_mode != &plane.mode_qland) && is_positive(motor_failure_current_high_threshold)) {
+            const AP_BattMonitor &monitor = plane.battery;
+
+            // assume battery 2 and 3 for this
+            const uint8_t instance_a = 1;
+            const uint8_t instance_b = 2;
+
+            float current_a, current_b;
+            if (monitor.healthy(instance_a) && monitor.healthy(instance_b) &&
+                monitor.current_amps(current_a, instance_a) && monitor.current_amps(current_b, instance_b)) {
+                const float high_current = MAX(current_a, current_b);
+                const float low_current  = MIN(current_a, current_b);
+
+                const float low_threshold = 15;
+                const uint32_t check_window = 500;
+
+                if ((low_current < low_threshold) && (high_current > motor_failure_current_high_threshold)) {
+                    if ((now - last_passed_current_check_ms) > check_window) {
+                        gcs().send_text(MAV_SEVERITY_WARNING, "Battery imbalance detected (%1.1f, %1.1f)", current_a, current_b);
+                        plane.set_mode(plane.mode_qland, ModeReason::FAILSAFE);
+                    }
+                }
+            } else {
+                last_passed_current_check_ms = now;
+            }
+        } else {
+            last_passed_current_check_ms = now;
         }
 
         // output to motors
