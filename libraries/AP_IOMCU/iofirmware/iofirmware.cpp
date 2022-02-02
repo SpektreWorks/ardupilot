@@ -215,7 +215,6 @@ void AP_IOMCU_FW::update()
 
     // output SBUS if enabled
     if ((reg_setup.features & P_SETUP_FEATURES_SBUS1_OUT) &&
-        reg_status.flag_safety_off &&
         now - sbus_last_ms >= sbus_interval_ms) {
         // output a new SBUS frame
         sbus_last_ms = now;
