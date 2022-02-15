@@ -484,12 +484,24 @@ const AP_Param::GroupInfo QuadPlane::var_info2[] = {
     // @RebootRequired: False
     AP_GROUPINFO("M_FAIL_DIS_TIM", 22, QuadPlane, motor_failure_disarm_time, 2),
 
-    // @Param: M_FAIL_BAT_VLT
+    // @Param: M_FAIL_BAT_CUR
     // @DisplayName: Motor failure for bad battery install time
-    // @Description: High voltage threshold to trigger a qland abort. 0 disables the check
+    // @Description: High current threshold to trigger a qland abort. 0 disables the check
     // @Units: V
     // @RebootRequired: False
-    AP_GROUPINFO("M_FAIL_BAT_VLT", 23, QuadPlane, motor_failure_current_high_threshold, 0),
+    AP_GROUPINFO("M_FAIL_BAT_CUR", 23, QuadPlane, motor_failure_current_high_threshold, 0),
+
+    // @Param: M_FAIL_BAT_A
+    // @DisplayName: Motor failure for bad battery install time battery instance
+    // @Description: Index for a battery which is monitoring VTOL power draw
+    // @RebootRequired: False
+    AP_GROUPINFO("M_FAIL_BAT_A", 24, QuadPlane, motor_failure_current_batt_a, 0),
+
+    // @Param: M_FAIL_BAT_B
+    // @DisplayName: Motor failure for bad battery install time battery instance
+    // @Description: Index for a battery which is monitoring VTOL power draw
+    // @RebootRequired: False
+    AP_GROUPINFO("M_FAIL_BAT_B", 25, QuadPlane, motor_failure_current_batt_b, 0),
 
     AP_GROUPEND
 };
@@ -1799,12 +1811,11 @@ void QuadPlane::update(void)
             (plane.control_mode != &plane.mode_qland) && is_positive(motor_failure_current_high_threshold)) {
             const AP_BattMonitor &monitor = plane.battery;
 
-            // assume battery 2 and 3 for this
-            const uint8_t instance_a = 1;
-            const uint8_t instance_b = 2;
+            const uint8_t instance_a = (uint8_t)motor_failure_current_batt_a - 1;
+            const uint8_t instance_b = (uint8_t)motor_failure_current_batt_b - 1;
 
             float current_a, current_b;
-            if (monitor.healthy(instance_a) && monitor.healthy(instance_b) &&
+            if (monitor.healthy(instance_a) && monitor.healthy(instance_b) && // healthy check will sanity check that the instances are valid
                 monitor.current_amps(current_a, instance_a) && monitor.current_amps(current_b, instance_b)) {
                 const float high_current = MAX(current_a, current_b);
                 const float low_current  = MIN(current_a, current_b);

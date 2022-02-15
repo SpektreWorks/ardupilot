@@ -443,6 +443,8 @@ private:
 
     uint32_t last_passed_current_check_ms;
     AP_Float motor_failure_current_high_threshold;
+    AP_Int8 motor_failure_current_batt_a;
+    AP_Int8 motor_failure_current_batt_b;
 
     // tiltrotor control variables
     struct {
