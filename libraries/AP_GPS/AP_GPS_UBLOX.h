@@ -234,6 +234,13 @@ private:
         TMODE_MODE = 0x20030001,
         CFG_RATE_MEAS                   = 0x30210001,
 
+        CFG_NMEA_FILT_GPS               = 0x10930011,
+        CFG_NMEA_FILT_SBAS              = 0x10930012,
+        CFG_NMEA_FILT_GAL               = 0x10930013,
+        CFG_NMEA_FILT_QZSS              = 0x10930015,
+        CFG_NMEA_FILT_GLO               = 0x10930016,
+        CFG_NMEA_FILT_BDS               = 0x10930017,
+
         CFG_UART1_BAUDRATE              = 0x40520001,
         CFG_UART1_ENABLED               = 0x10520005,
         CFG_UART1INPROT_UBX             = 0x10730001,
@@ -659,6 +666,7 @@ private:
     // GPS_DRV_OPTIONS bits
     enum class DRV_OPTIONS {
         MB_USE_UART2 = 1U<<0,
+        NMEA_OUT = 1U<<4,
     };
 
     // Packet checksum accumulators
@@ -775,6 +783,9 @@ private:
     // config for moving baseline rover
     static const config_list config_MB_Rover_uart1[];
     static const config_list config_MB_Rover_uart2[];
+
+    // config for NMEA out on UART2
+    static const config_list config_NMEA_uart2[];
 
     // status of active configuration for a role
     struct {

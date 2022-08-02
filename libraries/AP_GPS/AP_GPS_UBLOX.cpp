@@ -153,6 +153,22 @@ const AP_GPS_UBLOX::config_list AP_GPS_UBLOX::config_MB_Base_uart2[] {
  { ConfigKey::MSGOUT_RTCM_3X_TYPE1230_UART1, 0},
 };
 
+const AP_GPS_UBLOX::config_list AP_GPS_UBLOX::config_NMEA_uart2[] {
+ { ConfigKey::CFG_UART2_ENABLED, 1},
+ { ConfigKey::CFG_UART2_BAUDRATE, 115200},
+ { ConfigKey::CFG_UART2OUTPROT_NMEA, 1},
+ { ConfigKey::CFG_UART2OUTPROT_UBX, 0},
+ { ConfigKey::CFG_UART2OUTPROT_RTCM3X, 0},
+ { ConfigKey::CFG_UART1OUTPROT_RTCM3X, 0},
+ { ConfigKey::CFG_UART1INPROT_RTCM3X, 0},
+ { ConfigKey::CFG_NMEA_FILT_GPS, 0},
+ { ConfigKey::CFG_NMEA_FILT_SBAS, 0},
+ { ConfigKey::CFG_NMEA_FILT_GAL, 0},
+ { ConfigKey::CFG_NMEA_FILT_QZSS, 0},
+ { ConfigKey::CFG_NMEA_FILT_GLO, 0},
+ { ConfigKey::CFG_NMEA_FILT_BDS, 0}
+};
+
 
 /*
   config for F9 GPS in moving baseline rover role
@@ -373,6 +389,13 @@ AP_GPS_UBLOX::_request_next_config(void)
             if (role == AP_GPS::GPS_ROLE_MB_ROVER) {
                 const config_list *list = mb_use_uart2()?config_MB_Rover_uart2:config_MB_Rover_uart1;
                 uint8_t list_length = mb_use_uart2()?ARRAY_SIZE(config_MB_Rover_uart2):ARRAY_SIZE(config_MB_Rover_uart1);
+                if (!_configure_config_set(list, list_length, CONFIG_RTK_MOVBASE)) {
+                    _next_message--;
+                }
+            }
+            if (driver_options() & unsigned(DRV_OPTIONS::NMEA_OUT)) {
+                const config_list *list = config_NMEA_uart2;
+                const uint8_t list_length = ARRAY_SIZE(config_NMEA_uart2);
                 if (!_configure_config_set(list, list_length, CONFIG_RTK_MOVBASE)) {
                     _next_message--;
                 }
