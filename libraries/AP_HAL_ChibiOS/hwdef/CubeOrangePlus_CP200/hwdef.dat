@@ -1,0 +1,17 @@
+# hw definition file for processing by chibios_hwdef.py
+
+include ../CubeOrangePlus/hwdef.dat
+
+undef USB_STRING_PRODUCT
+undef USB_STRING_MANUFACTURER
+undef APJ_BOARD_ID
+undef USB_PRODUCT
+
+# USB setup
+USB_PRODUCT 0x1057
+USB_STRING_MANUFACTURER "CubePilot"
+USB_STRING_PRODUCT "CP200_v1.3+"
+
+APJ_BOARD_ID 1063
+
+define AP_PARAM_MAX_EMBEDDED_PARAM 16384
