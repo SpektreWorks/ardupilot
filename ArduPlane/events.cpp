@@ -113,6 +113,11 @@ void Plane::failsafe_long_on_event(enum failsafe_state fstype, ModeReason reason
     else {
         gcs().send_text(MAV_SEVERITY_WARNING, "RC Long Failsafe On");
     }
+
+    if (g.fs_action_long == FS_ACTION_LONG_AUTO) {
+        set_mode(mode_auto, reason);
+    }
+
     //  If the GCS is locked up we allow control to revert to RC
     RC_Channels::clear_overrides();
     failsafe.state = fstype;
