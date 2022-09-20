@@ -1,12 +1,5 @@
 local arming_auth_id = arming:get_aux_auth_id()
 
--- mission planner hacks
-for port = 0,5 do
-  gcs:send_text(0, "setting a port " .. port)
-  gcs:set_message_interval(port, 35, 1000000)
-  gcs:set_message_interval(port, 150, 1000000)
-end
-
 arming:set_aux_auth_failed(arming_auth_id, "Failed to start the radio and ignition control script")
 
 local PARAM_TABLE = 6 -- first byte of sha256sum of file name
