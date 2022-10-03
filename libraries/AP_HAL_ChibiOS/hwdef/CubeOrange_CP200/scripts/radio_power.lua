@@ -4,18 +4,24 @@ arming:set_aux_auth_failed(arming_auth_id, "Failed to start the radio and igniti
 
 local PARAM_TABLE = 6 -- first byte of sha256sum of file name
 -- add the parameter table, allocate 3 parameters for it
-assert (param:add_table(PARAM_TABLE, "TARG_", 5), "could not add param table")
+assert (param:add_table(PARAM_TABLE, "TARG_", 6), "could not add param table")
 assert (param:add_param(PARAM_TABLE, 1, "POWR_RELAY", 5), "could not add param")
 assert (param:add_param(PARAM_TABLE, 2, "IGN_RELAY", 4), "could not add param")
 assert (param:add_param(PARAM_TABLE, 3, "DEBUG", 1), "could not add param")
 assert (param:add_param(PARAM_TABLE, 4, "POWR_DELAY", 1), "could not add param")
 assert (param:add_param(PARAM_TABLE, 5, "POWR_TIME", 60), "could not add param")
+assert (param:add_param(PARAM_TABLE, 6, "POWR_MODE", 1), "could not add param")
 
 function bind_param(name)    
    local p = Parameter()    
    assert(p:init(name), string.format('could not find %s parameter', name))    
    return p    
 end 
+
+local power_mode = bind_param ("TARG_POWR_MODE")
+-- Radio power modes
+--   1 - RC Control
+--   2 - Mission/GCS control (just set state on start and ignore)
 
 local power_relay = bind_param ("TARG_POWR_RELAY")
 relay:on (power_relay:get ()) -- force the radio on by default
@@ -101,8 +107,12 @@ end
 local radio_off_timer = 0
 local radio_delay = nil
 local radio_poweroff_start = nil
+local radio_power_current_on = true
 
 function update_radio_power ()
+  if power_mode:get () ~= 1 then
+    return
+  end
   -- always debounce a channel
   local input_changed = debounce_channel (timer_rc)
 
@@ -147,7 +157,7 @@ function update_radio_power ()
     radio_low_timer = nil -- clear any old clearance timers
     local current_time = millis ()
     if (current_time - radio_delay_off):tofloat() > radio_power_delay:get() * 1000.0 then
-      relay:off (power_relay:get ())
+      radio_power_current_on = false
       if debug:get() > 0 then
         gcs:send_text (6, "Radio power toggled off")
       end
@@ -156,7 +166,7 @@ function update_radio_power ()
     end
   elseif radio_poweroff_start ~= nil then -- we are off, check if we should be on
     if (millis() - radio_poweroff_start):tofloat() > radio_off_timer * 1000 then
-      relay:on (power_relay:get ())
+      radio_power_current_on = true
       radio_poweroff_start = nil
       radio_off_timer = 0;
       if debug:get () > 0 then
@@ -171,6 +181,12 @@ function update_radio_power ()
         gcs:send_text(6, "Radio timer cleared");
       end
     end
+  end
+
+  if radio_power_current_on then
+    relay:on (power_relay:get ())
+  else
+    relay:off (power_relay:get ())
   end
 end
 
