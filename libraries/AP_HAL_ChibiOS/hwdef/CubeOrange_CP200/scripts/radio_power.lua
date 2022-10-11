@@ -5,7 +5,7 @@ arming:set_aux_auth_failed(arming_auth_id, "Failed to start the radio and igniti
 local PARAM_TABLE = 6 -- first byte of sha256sum of file name
 -- add the parameter table, allocate 3 parameters for it
 assert (param:add_table(PARAM_TABLE, "TARG_", 6), "could not add param table")
-assert (param:add_param(PARAM_TABLE, 1, "POWR_RELAY", 5), "could not add param")
+assert (param:add_param(PARAM_TABLE, 1, "POWR_RELAY", 3), "could not add param")
 assert (param:add_param(PARAM_TABLE, 2, "IGN_RELAY", 4), "could not add param")
 assert (param:add_param(PARAM_TABLE, 3, "DEBUG", 1), "could not add param")
 assert (param:add_param(PARAM_TABLE, 4, "POWR_DELAY", 1), "could not add param")
