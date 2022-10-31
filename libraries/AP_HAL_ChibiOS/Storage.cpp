@@ -232,7 +232,7 @@ void Storage::read_block(void *dst, uint16_t loc, size_t n)
     memcpy(dst, &_buffer[loc], n);
 }
 
-void Storage::write_block(uint16_t loc, const void *src, size_t n)
+void Storage::write_block(uint16_t loc, const void *src, size_t n, bool persistent)
 {
     if ((n > sizeof(_buffer)) || (loc > (sizeof(_buffer) - n))) {
         return;
@@ -241,7 +241,9 @@ void Storage::write_block(uint16_t loc, const void *src, size_t n)
         _storage_open();
         WITH_SEMAPHORE(sem);
         memcpy(&_buffer[loc], src, n);
-        _mark_dirty(loc, n);
+        if (persistent) {
+            _mark_dirty(loc, n);
+        }
     }
 }
 
