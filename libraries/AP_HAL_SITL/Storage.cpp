@@ -89,7 +89,7 @@ void Storage::read_block(void *dst, uint16_t loc, size_t n)
     memcpy(dst, &_buffer[loc], n);
 }
 
-void Storage::write_block(uint16_t loc, const void *src, size_t n)
+void Storage::write_block(uint16_t loc, const void *src, size_t n, bool persistent)
 {
     if (loc >= sizeof(_buffer)-(n-1)) {
         return;
@@ -97,7 +97,9 @@ void Storage::write_block(uint16_t loc, const void *src, size_t n)
     if (memcmp(src, &_buffer[loc], n) != 0) {
         _storage_open();
         memcpy(&_buffer[loc], src, n);
-        _mark_dirty(loc, n);
+        if (persistent) {
+            _mark_dirty(loc, n);
+        }
     }
 }
 
