@@ -196,7 +196,11 @@ bool StorageAccess::write_block(uint16_t addr, const void *data, size_t n) const
             // the data crosses a boundary between two areas
             count = length - addr;
         }
-        hal.storage->write_block(addr+offset, b, count);
+        bool persistent = true;
+        if ((type == StorageManager::StorageType::StorageMission) || (type == StorageManager::StorageType::StorageRally)) {
+          persistent = false;
+        }
+        hal.storage->write_block(addr+offset, b, count, persistent);
         n -= count;
 
         if (n == 0) {
