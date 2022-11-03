@@ -288,7 +288,14 @@ const AP_Param::GroupInfo AP_BoardConfig::var_info[] = {
     // @User: Advanced
     // @RebootRequired: True
     AP_GROUPINFO("ALT_CONFIG", 22, AP_BoardConfig, _alt_config, 0),
-    
+
+    // @Param: STOR_SKIP
+    // @DisplayName: Regions to skip backing up to storage
+    // @Description: Which storage regions shouldn't be backed up to persistent storage
+    // @Bitmask: 0: Parameters, 1: Fence, 2: Rallypoints, 3: Mission items, 4: Keys, 5: Bind info, 6: CANDNA, 7: ParamBak
+    // @User: Advanced
+    AP_GROUPINFO("STOR_SKIP", 24, AP_BoardConfig, _storage_skip, 0),
+
     AP_GROUPEND
 };
 
