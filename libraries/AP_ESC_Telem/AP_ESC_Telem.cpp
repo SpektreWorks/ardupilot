@@ -128,7 +128,7 @@ bool AP_ESC_Telem::are_motors_running(uint32_t servo_channel_mask, float min_rpm
         if (BIT_IS_SET(servo_channel_mask, i)) {
             const volatile AP_ESC_Telem_Backend::RpmData& rpmdata = _rpm_data[i];
             // we choose a relatively strict measure of health so that failsafe actions can rely on the results
-            if (now < rpmdata.last_update_us || now - rpmdata.last_update_us > ESC_RPM_CHECK_TIMEOUT_US) {
+            if ((rpmdata.last_update_us == 0) || ((now - rpmdata.last_update_us) > ESC_RPM_CHECK_TIMEOUT_US)) {
                 return false;
             }
             if (rpmdata.rpm < min_rpm) {
@@ -170,7 +170,7 @@ bool AP_ESC_Telem::get_rpm(uint8_t esc_index, float& rpm) const
     }
 
     const uint32_t now = AP_HAL::micros();
-    if (rpmdata.last_update_us > 0 && (now >= rpmdata.last_update_us)
+    if (rpmdata.last_update_us > 0
         && (now - rpmdata.last_update_us < ESC_RPM_DATA_TIMEOUT_US)) {
         const float slew = MIN(1.0f, (now - rpmdata.last_update_us) * rpmdata.update_rate_hz * (1.0f / 1e6f));
         rpm = (rpmdata.prev_rpm + (rpmdata.rpm - rpmdata.prev_rpm) * slew);
@@ -197,7 +197,7 @@ bool AP_ESC_Telem::get_raw_rpm(uint8_t esc_index, float& rpm) const
 
     const uint32_t now = AP_HAL::micros();
 
-    if (now < rpmdata.last_update_us || now - rpmdata.last_update_us > ESC_RPM_DATA_TIMEOUT_US) {
+    if ((rpmdata.last_update_us > 0) || ((now - rpmdata.last_update_us) > ESC_RPM_DATA_TIMEOUT_US)) {
         return false;
     }
 
@@ -475,10 +475,12 @@ void AP_ESC_Telem::update()
 {
     AP_Logger *logger = AP_Logger::get_singleton();
 
-    // Push received telemetry data into the logging system
-    if (logger && logger->logging_enabled()) {
+    const uint32_t now = AP_HAL::micros();
 
-        for (uint8_t i = 0; i < ESC_TELEM_MAX_ESCS; i++) {
+    for (uint8_t i = 0; i < ESC_TELEM_MAX_ESCS; i++) {
+        // Push received telemetry data into the logging system
+        if (logger && logger->logging_enabled()) {
+
             if (_telem_data[i].last_update_ms != _last_telem_log_ms[i]
                 || _rpm_data[i].last_update_us != _last_rpm_log_us[i]) {
 
@@ -513,6 +515,13 @@ void AP_ESC_Telem::update()
                 _last_telem_log_ms[i] = _telem_data[i].last_update_ms;
                 _last_rpm_log_us[i] = _rpm_data[i].last_update_us;
             }
+        }
+
+        // clear out any dead inputs, this helps us avoid having an issue when time wraps, or if it never responds stops us from having
+        // a period after the wrap where we use the bad old data
+        if (now - _rpm_data[i].last_update_us > ESC_RPM_DATA_TIMEOUT_US ) {
+            _rpm_data[i].last_update_us = 0;
+            _last_rpm_log_us[i] = 0; // clear the log entry out so we don't log it by accident
         }
     }
 }
