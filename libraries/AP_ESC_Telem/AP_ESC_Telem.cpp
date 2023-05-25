@@ -460,10 +460,8 @@ void AP_ESC_Telem::update_rpm(const uint8_t esc_index, const float new_rpm, cons
 
     rpmdata.prev_rpm = rpmdata.rpm;
     rpmdata.rpm = new_rpm;
-    if (now > last_update_us) { // cope with wrapping
-        rpmdata.update_rate_hz = 1.0e6f / (now - last_update_us);
-    }
-    rpmdata.last_update_us = now;
+    rpmdata.update_rate_hz = MAX(1.0e6f / (now - last_update_us), 0.1f); // clamp out incredibly slow updates
+    rpmdata.last_update_us = now != 0 ? now : 1; // reject a perfect 0 timestamp since we use it as a flag
     rpmdata.error_rate = error_rate;
 
 #ifdef ESC_TELEM_DEBUG
