@@ -12,6 +12,8 @@ APJ_BOARD_ID 6000
 
 env AP_PERIPH 1
 
+define CAN_APP_NODE_NAME "sw-spar-f407"
+
 # crystal frequency
 OSCILLATOR_HZ 8000000
 
@@ -52,35 +54,52 @@ define HAL_PERIPH_ENABLE_RC_OUT
 13 PA15  TIM2_CH1  TIM2 PWM(1) GPIO(1)
 
 # ---------------------- I2C bus ------------------------
-I2C_ORDER I2C1 I2C3
+I2C_ORDER I2C3 I2C1
+define STM32_I2C_USE_I2C1 TRUE
+define STM32_I2C_USE_I2C3 TRUE
+define HAL_I2C_CLEAR_ON_TIMEOUT 0
+define HAL_I2C_INTERNAL_MASK 0
 
+# gps/aux port
 PB8 I2C1_SCL I2C1
 PB9 I2C1_SDA I2C1
 
+# internal mag
 PA8 I2C3_SCL I2C3
 PC9 I2C3_SDA I2C3
 
-define HAL_I2C_CLEAR_ON_TIMEOUT 0
-define HAL_I2C_INTERNAL_MASK 1
+# EFI
+define AP_PERIPH_EFI_PORT_DEFAULT 0
+define HAL_PERIPH_ENABLE_EFI 1
+define HAL_EFI_ENABLED 1
+define HAL_PERIPH_EFI_BAUDRATE_DEFAULT 115200
 
-# ----------------------- GPS ----------------------------
+# GPS
 define HAL_PERIPH_ENABLE_GPS
+define HAL_PERIPH_GPS_PORT_DEFAULT 1
 define GPS_MAX_RATE_MS 200
 
 define GPS_MAX_RECEIVERS 1
 define GPS_MAX_INSTANCES 1
 
-# ---------------------- COMPASS ---------------------------
+# rangefinder
+define HAL_PERIPH_ENABLE_RANGEFINDER 2
+define AP_PERIPH_RANGEFINDER_PORT_DEFAULT 2
+
+# compass
 define HAL_PERIPH_ENABLE_MAG
+define HAL_COMPASS_MAX_SENSORS 2
 
 COMPASS MMC3416 I2C:0:0x30 false ROTATION_NONE
 
-define HAL_COMPASS_MAX_SENSORS 2
+# expected aux compass, unclear if these need to be listed
+COMPASS RM3100  I2C:1:0x20 false ROTATION_NONE
+COMPASS RM3100  I2C:1:0x21 false ROTATION_NONE
+COMPASS RM3100  I2C:1:0x22 false ROTATION_NONE
+COMPASS RM3100  I2C:1:0x23 false ROTATION_NONE
 
-# disable rangefinder by default
-define AP_PERIPH_RANGEFINDER_PORT_DEFAULT 1
 
-# ------------------ BATTERY Monitor -----------------------
+# battery
 define HAL_PERIPH_ENABLE_BATTERY
 
 define HAL_USE_ADC TRUE
