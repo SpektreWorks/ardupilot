@@ -35,6 +35,9 @@ PB5 CAN2_RX CAN2
 PB6 CAN2_TX CAN2
 PB7 GPIO_CAN2_SILENT OUTPUT PUSHPULL SPEED_LOW LOW
 
+# we want to be able to mirror CAN onto both buses
+define CAN_MIRROR 1
+
 # ---------------------- UARTs ---------------------------
 #           | nav light | esc front  | esc rear | transponder |
 SERIAL_ORDER USART6 USART2 USART3 UART4
