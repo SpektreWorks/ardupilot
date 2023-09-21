@@ -26,15 +26,17 @@ define HAL_LED_ON 1
 #PA14 JTCK-SWCLK SWD
 
 # ECU
-#PD0 CAN1_RX CAN1
-#PD1 CAN1_TX CAN1
-# force the ECU CAN transciever to be quiet
-PD2 GPIO_CAN1_SILENT OUTPUT PUSHPULL SPEED_LOW HIGH
+PD0 CAN1_RX CAN1
+PD1 CAN1_TX CAN1
+PD2 GPIO_CAN1_SILENT OUTPUT PUSHPULL SPEED_LOW LOW
 
 # avionics can
 PB5 CAN2_RX CAN2
 PB6 CAN2_TX CAN2
 PB7 GPIO_CAN2_SILENT OUTPUT PUSHPULL SPEED_LOW LOW
+
+# we don't actually need/use CAN mirroring, but it makes a very handy debug port
+define HAL_PERIPH_CAN_MIRROR 1
 
 # ---------------------- UARTs ---------------------------
 #           | efi  | gps  | lidar |
@@ -109,12 +111,12 @@ define HAL_PERIPH_BATTERY_SKIP_NAME # don't waste bandwidth on static names
 define HAL_USE_ADC TRUE
 define STM32_ADC_USE_ADC1 TRUE
 
-# 12V in
-PA4 BATT_VOLTAGE_SENS ADC1 SCALE(1)
-# 5V in
-PA5 BATT2_VOLTAGE_SENS ADC1 SCALE(1)
 # fuel tank
-PB0 BATT3_VOLTAGE_SENS ADC1 SCALE(1)
+PB0 BATT3_VOLTAGE_SENS ADC1 SCALE(1) ANALOG(1)
+# 12V in
+PA4 BATT_VOLTAGE_SENS ADC1 SCALE(1) ANALOG(2)
+# 5V in
+PA5 BATT2_VOLTAGE_SENS ADC1 SCALE(1) ANALOG(3)
 
 # don't build on firmware.ardupilot.org
 AUTOBUILD_TARGETS None
