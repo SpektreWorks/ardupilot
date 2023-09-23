@@ -42,6 +42,7 @@ private:
     AP_Float _a1;
     AP_Float _a2;
     AP_Float _a3;
+    AP_Float _a4;
 
 };
 

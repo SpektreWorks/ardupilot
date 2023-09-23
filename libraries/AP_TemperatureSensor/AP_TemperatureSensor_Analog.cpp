@@ -30,23 +30,28 @@ const AP_Param::GroupInfo AP_TemperatureSensor_Analog::var_info[] = {
 
     // @Param: A0
     // @DisplayName: 0th polynomial coefficient
-    // @Description: a0 in polynomial of form temperature in deg = a0 + a1*voltage + a2*voltage^2 + a3*voltage^3
+    // @Description: a0 in polynomial of form temperature in deg = a0 + a1*voltage + a2*voltage^2 + a3*voltage^3 + a4*voltage^4
     AP_GROUPINFO("A0", 2, AP_TemperatureSensor_Analog, _a0, 0),
 
     // @Param: A1
-    // @DisplayName: 0th polynomial coefficient
-    // @Description: a1 in polynomial of form temperature in deg = a0 + a1*voltage + a2*voltage^2 + a3*voltage^3
+    // @DisplayName: 1st polynomial coefficient
+    // @Description: a1 in polynomial of form temperature in deg = a0 + a1*voltage + a2*voltage^2 + a3*voltage^3 + a4*voltage^4
     AP_GROUPINFO("A1", 3, AP_TemperatureSensor_Analog, _a1, 0),
 
     // @Param: A2
-    // @DisplayName: 0th polynomial coefficient
-    // @Description: a2 in polynomial of form temperature in deg = a0 + a1*voltage + a2*voltage^2 + a3*voltage^3
+    // @DisplayName: 2nd polynomial coefficient
+    // @Description: a2 in polynomial of form temperature in deg = a0 + a1*voltage + a2*voltage^2 + a3*voltage^3 + a4*voltage^4
     AP_GROUPINFO("A2", 4, AP_TemperatureSensor_Analog, _a2, 0),
 
     // @Param: A3
-    // @DisplayName: 0th polynomial coefficient
-    // @Description: a3 in polynomial of form temperature in deg = a0 + a1*voltage + a2*voltage^2 + a3*voltage^3
+    // @DisplayName: 3rd polynomial coefficient
+    // @Description: a3 in polynomial of form temperature in deg = a0 + a1*voltage + a2*voltage^2 + a3*voltage^3 + a4*voltage^4
     AP_GROUPINFO("A3", 5, AP_TemperatureSensor_Analog, _a3, 0),
+
+    // @Param: A4
+    // @DisplayName: 4th polynomial coefficient
+    // @Description: a4 in polynomial of form temperature in deg = a0 + a1*voltage + a2*voltage^2 + a3*voltage^3 + a4*voltage^4
+    AP_GROUPINFO("A4", 6, AP_TemperatureSensor_Analog, _a4, 0),
 
     AP_GROUPEND
 };
@@ -79,11 +84,17 @@ void AP_TemperatureSensor_Analog::update()
     // Evaluate polynomial
     float temp = _a0 + _a1 * voltage;
 
+    // a2 * voltage^2
     voltage *= voltage;
     temp += _a2 * voltage;
 
+    // a3 * voltage^3
     voltage *= voltage;
     temp += _a3 * voltage;
+
+    // a4 * voltage^4
+    voltage *= voltage;
+    temp += _a4 * voltage;
 
     // update state
     set_temperature(temp);
