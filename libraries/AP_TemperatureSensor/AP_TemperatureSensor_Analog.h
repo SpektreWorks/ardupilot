@@ -38,11 +38,7 @@ private:
     AP_Int8  _pin; 
 
     // Polynomial coefficients to calculate temperature from voltage
-    AP_Float _a0;
-    AP_Float _a1;
-    AP_Float _a2;
-    AP_Float _a3;
-    AP_Float _a4;
+    AP_Float _a[5];
 
 };
 
