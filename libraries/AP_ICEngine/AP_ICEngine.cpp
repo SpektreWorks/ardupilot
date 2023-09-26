@@ -25,6 +25,7 @@
 #include <RC_Channel/RC_Channel.h>
 #include <AP_RPM/AP_RPM.h>
 #include <AP_Parachute/AP_Parachute.h>
+#include <AP_Relay/AP_Relay.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -373,6 +374,9 @@ void AP_ICEngine::update(void)
     }
 #endif // AP_RPM_ENABLED
 
+#if AP_RELAY_ENABLED
+    AP_Relay *relay = AP::relay();
+#endif // AP_RELAY_ENABLED
     /* now set output channels */
     switch (state) {
     case ICE_DISABLED:
@@ -380,6 +384,12 @@ void AP_ICEngine::update(void)
     case ICE_OFF:
         SRV_Channels::set_output_pwm(SRV_Channel::k_ignition, pwm_ignition_off);
         SRV_Channels::set_output_pwm(SRV_Channel::k_starter,  pwm_starter_off);
+#if AP_RELAY_ENABLED
+        if (relay != nullptr) {
+            relay->set(AP_Relay_Params::Function::ignition, false);
+            relay->set(AP_Relay_Params::Function::starter, false);
+        }
+#endif // AP_RELAY_ENABLED
         starter_start_time_ms = 0;
         break;
 
@@ -387,11 +397,23 @@ void AP_ICEngine::update(void)
     case ICE_START_DELAY:
         SRV_Channels::set_output_pwm(SRV_Channel::k_ignition, pwm_ignition_on);
         SRV_Channels::set_output_pwm(SRV_Channel::k_starter,  pwm_starter_off);
+#if AP_RELAY_ENABLED
+        if (relay != nullptr) {
+            relay->set(AP_Relay_Params::Function::ignition, true);
+            relay->set(AP_Relay_Params::Function::starter, false);
+        }
+#endif // AP_RELAY_ENABLED
         break;
 
     case ICE_STARTING:
         SRV_Channels::set_output_pwm(SRV_Channel::k_ignition, pwm_ignition_on);
         SRV_Channels::set_output_pwm(SRV_Channel::k_starter,  pwm_starter_on);
+#if AP_RELAY_ENABLED
+        if (relay != nullptr) {
+            relay->set(AP_Relay_Params::Function::ignition, true);
+            relay->set(AP_Relay_Params::Function::starter, true);
+        }
+#endif // AP_RELAY_ENABLED
         if (starter_start_time_ms == 0) {
             starter_start_time_ms = now;
         }
@@ -401,6 +423,12 @@ void AP_ICEngine::update(void)
     case ICE_RUNNING:
         SRV_Channels::set_output_pwm(SRV_Channel::k_ignition, pwm_ignition_on);
         SRV_Channels::set_output_pwm(SRV_Channel::k_starter,  pwm_starter_off);
+#if AP_RELAY_ENABLED
+        if (relay != nullptr) {
+            relay->set(AP_Relay_Params::Function::ignition, true);
+            relay->set(AP_Relay_Params::Function::starter, false);
+        }
+#endif // AP_RELAY_ENABLED
         starter_start_time_ms = 0;
         break;
     }
