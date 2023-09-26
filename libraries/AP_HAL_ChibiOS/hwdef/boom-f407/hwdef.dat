@@ -106,5 +106,8 @@ PC2 BATT_5V_PRIM_SENS ADC1 SCALE(1) # pin 12
 # battery temperature
 PC4 BATT_TEMP_SENS ADC1 SCALE(1) # pin 14
 
+# temperature
+define AP_TEMPERATURE_SENSOR_ENABLED 1
+
 # don't build on firmware.ardupilot.org
 AUTOBUILD_TARGETS None
