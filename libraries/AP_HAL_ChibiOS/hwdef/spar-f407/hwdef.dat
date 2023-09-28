@@ -17,6 +17,9 @@ define CAN_APP_NODE_NAME "sw-spar-f407"
 # crystal frequency
 OSCILLATOR_HZ 8000000
 
+# we need tim2 for PWM
+STM32_ST_USE_TIMER 5
+
 # activity led
 PC8 LED OUTPUT LOW
 define HAL_LED_ON 1
@@ -56,7 +59,7 @@ PB11  USART3_RX USART3 SPEED_HIGH DMA
 
 # throttle pwm
 define HAL_PERIPH_ENABLE_RC_OUT
-13 PA15  TIM2_CH1  TIM2 PWM(1) GPIO(1)
+PA15  TIM2_CH1  TIM2 PWM(1)
 
 # i2c
 I2C_ORDER I2C3 I2C1
