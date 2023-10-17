@@ -2607,10 +2607,11 @@ void QuadPlane::vtol_position_controller(void)
             const float yaw_err_deg = wrap_180(target_yaw_deg - degrees(plane.ahrs.yaw));
             bool overshoot = (closing_groundspeed < 0 || fabsf(yaw_err_deg) > 60);
             if (overshoot && !poscontrol.overshoot) {
+                poscontrol.set_state(QPOS_POSITION2);
                 gcs().send_text(MAV_SEVERITY_INFO,"VTOL Overshoot d=%.1f cs=%.1f yerr=%.1f",
                                 distance, closing_groundspeed, yaw_err_deg);
-                poscontrol.overshoot = true;
-                pos_control->set_accel_desired_xy_cmss(Vector2f());
+                //poscontrol.overshoot = true;
+                //pos_control->set_accel_desired_xy_cmss(Vector2f());
             }
             if (poscontrol.overshoot) {
                 /* we have overshot the landing point or our nose is
