@@ -504,6 +504,24 @@ const AP_Param::GroupInfo QuadPlane::var_info2[] = {
     // @User: Standard
     AP_GROUPINFO("RTL_ALT_MIN", 34, QuadPlane, qrtl_alt_min, 10),
 
+    // @Param: M_FAIL_MIN_RPM
+    // @DisplayName: Quadplane motor minimum RPM to be valid
+    // @Description: The minimum RPM to be valid at the end of motor spool up, 0 to disable
+    // @Units: Hz
+    // @Range: 0 4000
+    // @Increment: 100
+    // @User: Advanced
+    AP_GROUPINFO("M_FAIL_MIN_RPM", 35, QuadPlane, motor_spool_min_rpm, 0),
+
+    // @Param: M_FAIL_MAX_RPM
+    // @DisplayName: Quadplane motor maximum RPM to be valid
+    // @Description: The maximum RPM to be valid at the end of motor spool up, 0 to disable
+    // @Units: Hz
+    // @Range: 0 4000
+    // @Increment: 100
+    // @User: Advanced
+    AP_GROUPINFO("M_FAIL_MAX_RPM", 36, QuadPlane, motor_spool_max_rpm, 0),
+
     AP_GROUPEND
 };
 
@@ -1753,6 +1771,26 @@ void SLT_Transition::VTOL_update()
     last_throttle = motors->get_throttle();
 }
 
+void QuadPlane::check_for_motor_failure ()
+{
+    // if we are spooling up then check that the motor spun appropriately
+    if ((motors->get_spool_state() == AP_Motors::SpoolState::SPOOLING_UP) &&
+         !AP::esc_telem().are_motors_running(motors->get_motor_mask(), motor_spool_min_rpm, motor_spool_max_rpm)) {
+        gcs().send_text(MAV_SEVERITY_WARNING, "Motor failure detected");
+        // select a resolution to the problem
+
+        // if we think we are taking off just disarm
+        const uint32_t max_time_since_arming = 5000;
+        if ((AP::arming().armed_time_ms() < max_time_since_arming)
+            && (plane.relative_ground_altitude(plane.g.rangefinder_landing) < 1)) {
+            gcs().send_text(MAV_SEVERITY_INFO, "Motor failure resolution: disarm");
+        } else {
+            // Not sure where we might be, just trust RTL to sort us out
+            gcs().send_text(MAV_SEVERITY_INFO, "Motor failure resolution: RTL");
+        }
+    }
+}
+
 /*
   update motor output for quadplane
  */
@@ -1984,6 +2022,8 @@ void QuadPlane::update_throttle_hover()
  */
 void QuadPlane::motors_output(bool run_rate_controller)
 {
+    check_for_motor_failure();
+
     /* Delay for ARMING_DELAY_MS after arming before allowing props to spin:
        1) for safety (OPTION_DELAY_ARMING)
        2) to allow motors to return to vertical (OPTION_DISARMED_TILT)

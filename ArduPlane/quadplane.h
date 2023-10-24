@@ -279,6 +279,7 @@ private:
     float desired_auto_yaw_rate_cds(void) const;
 
     bool should_relax(void);
+    void check_for_motor_failure(void);
     void motors_output(bool run_rate_controller = true);
     void Log_Write_QControl_Tuning();
     void log_QPOS(void);
@@ -352,6 +353,9 @@ private:
     // QRTL start altitude, meters
     AP_Int16 qrtl_alt;
     AP_Int16 qrtl_alt_min;
+
+    AP_Int16 motor_spool_min_rpm;
+    AP_Int16 motor_spool_max_rpm;
     
     // alt to switch to QLAND_FINAL
     AP_Float land_final_alt;
