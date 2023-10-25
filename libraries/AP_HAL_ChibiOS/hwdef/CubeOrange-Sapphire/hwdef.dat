@@ -1,0 +1,117 @@
+# hw definition file for processing by chibios_hwdef.py
+
+include ../CubeOrange/hwdef.dat
+
+undef USB_STRING_PRODUCT
+undef USB_STRING_MANUFACTURER
+undef APJ_BOARD_ID
+undef USB_PRODUCT
+
+# USB setup
+USB_STRING_MANUFACTURER "CubePilot"
+USB_STRING_PRODUCT "CubeOrange-Sapphire"
+
+APJ_BOARD_ID 6099
+
+# remap the power pins so that we can set default sane states
+undef PE9
+undef PD13
+undef PD14
+PE9  AUX4 OUTPUT LOW GPIO(53)
+PD13 AUX5 OUTPUT LOW GPIO(54)
+PD14 AUX6 OUTPUT LOW GPIO(55)
+
+# disable notify backends we know we won't use
+define AP_NOTIFY_TOSHIBALED_ENABLED 0
+define AP_NOTIFY_NCP5623_ENABLED 0
+define AP_NOTIFY_LP5562_ENABLED 0
+define AP_NOTIFY_PCA9685_ENABLED 0
+define AP_NOTIFY_IS31FL3195_ENABLED 0
+define AP_NOTIFY_MAVLINK_PLAY_TUNE_SUPPORT_ENABLED 0
+define BUILD_DEFAULT_BUZZER_TYPE 0
+define HAL_DISPLAY_ENABLED 0
+undef AP_NOTIFY_OREOLED_ENABLED
+define AP_NOTIFY_OREOLED_ENABLED 0
+define AP_NOTIFY_SERIALLED_ENABLED 0
+
+define NOTIFY_LED_OVERRIDE_DEFAULT 1
+
+# no OSD
+define OSD_ENABLED 0
+define HAL_WITH_MSP_DISPLAYPORT 0
+
+# no video tx
+define AP_VIDEOTX_ENABLED 0
+
+# airspeed sensors we will not use
+define AP_AIRSPEED_HYGROMETER_ENABLE 0
+define AP_AIRSPEED_MS4525_ENABLED 0
+define AP_AIRSPEED_MS5525_ENABLED 0
+define AP_AIRSPEED_ANALOG_ENABLED 0
+define AP_AIRSPEED_SDP3X_ENABLED 0
+define AP_AIRSPEED_ASP5033_ENABLED 0
+define AP_AIRSPEED_NMEA_ENABLED 0
+
+# compasses we will not use
+define AP_COMPASS_LIS3MDL_ENABLED 0
+define AP_COMPASS_BMM150_ENABLED 0
+define AP_COMPASS_IST8310_ENABLED 0
+define AP_COMPASS_MAG3110_ENABLED 0
+
+# no rc style telem
+define AP_FRSKY_TELEM_ENABLED 0
+define AP_LTM_TELEM_ENABLED 0
+define HAL_MSP_ENABLED 0
+define HAL_HOTT_TELEM_ENABLED 0
+
+# disable various unused backends
+define HAL_GENERATOR_ENABLED 0
+define AP_AIS_ENABLED 0
+define AP_OPTICALFLOW_ENABLED 0
+define HAL_PROXIMITY_ENABLED 0
+define AP_LANDINGGEAR_ENABLED 0
+define HAL_MOUNT_ENABLED 0
+define AP_SERIALLED_ENABLED 0
+define HAL_VISUALODOM_ENABLED 0
+define HAL_PICCOLO_CAN_ENABLE 0
+define AP_SDCARD_STORAGE_ENABLED 0
+
+# disable batteries we don't care about
+undef AP_BATTERY_SMBUS_SOLO_ENABLED
+define AP_BATTERY_SMBUS_SOLO_ENABLED 0
+define AP_BATTERY_SMBUS_ENABLED 0
+define AP_BATTERY_FUELLEVEL_ANALOG_ENABLED 0
+define AP_BATTERY_FUELLEVEL_PWM_ENABLED 0
+define AP_BATTERY_FUELFLOW_ENABLED 0
+define AP_BATTERY_ESC_ENABLED 0
+
+# rangefinder
+define RANGEFINDER_MAX_INSTANCES 1 # we aren't running a ton
+define AP_RANGEFINDER_BACKEND_DEFAULT_ENABLED 0 # disable most rangefinder backends
+define AP_RANGEFINDER_LIGHTWARE_SERIAL_ENABLED 1
+
+# disable unused actuators
+define AP_VOLZ_ENABLED 0
+define HAL_PARACHUTE_ENABLED 0
+define AP_GRIPPER_ENABLED 0
+define AP_ROBOTISSERVO_ENABLED 0
+define AP_FETTEC_ONEWIRE_ENABLED 0
+define HAL_TORQEEDO_ENABLED 0
+
+# define default params
+define AIRSPEED_CRUISE 25.7 # m/s
+define MIN_GNDSPEED 1 # m/s
+define AIRSPEED_FBW_MIN 21 # m/s
+define AIRSPEED_FBW_MAX 31 # m/s
+define HEAD_MAX 30 # degrees, roll limit
+define PITCH_MAX 14 # degrees
+define PITCH_MIN -15 # degrees
+define HAL_AIRSPEED_TYPE_DEFAULT 9 # dlvr, 10in
+define HAL_CAN_DRIVER_DEFAULT 1
+define BOARD_CONFIG_BOARD_VOLTAGE_MIN 5
+define BOARD_SAFETY_OPTION_DEFAULT 8 # safety on on disarm
+undef HAL_IMU_TEMP_MARGIN_LOW_DEFAULT
+define HAL_IMU_TEMP_MARGIN_LOW_DEFAULT 20 # must be within 20 degrees or over target heat
+define HAL_BATT_MONITOR_DEFAULT 3 # voltage, 28v
+define HAL_BATT2_MONITOR_DEFAULT 8 # can
+define FLIGHT_MODE_CHANNEL 5
