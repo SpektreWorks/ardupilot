@@ -1775,6 +1775,7 @@ void QuadPlane::check_for_motor_failure ()
 {
     // if we are spooling up then check that the motor spun appropriately
     if ((motors->get_spool_state() == AP_Motors::SpoolState::SPOOLING_UP) &&
+        ((motor_spool_min_rpm > 0) || (motor_spool_max_rpm > 0))
          !AP::esc_telem().are_motors_running(motors->get_motor_mask(), motor_spool_min_rpm, motor_spool_max_rpm)) {
         gcs().send_text(MAV_SEVERITY_WARNING, "Motor failure detected");
         // select a resolution to the problem
