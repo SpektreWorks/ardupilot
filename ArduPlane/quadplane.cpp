@@ -1775,7 +1775,7 @@ void QuadPlane::check_for_motor_failure ()
 {
     // if we are spooling up then check that the motor spun appropriately
     if ((motors->get_spool_state() == AP_Motors::SpoolState::SPOOLING_UP) &&
-        ((motor_spool_min_rpm > 0) || (motor_spool_max_rpm > 0))
+        ((motor_spool_min_rpm > 0) || (motor_spool_max_rpm > 0)) &&
          !AP::esc_telem().are_motors_running(motors->get_motor_mask(), motor_spool_min_rpm, motor_spool_max_rpm)) {
         gcs().send_text(MAV_SEVERITY_WARNING, "Motor failure detected");
         // select a resolution to the problem
@@ -3878,6 +3878,8 @@ bool QuadPlane::is_vtol_land(uint16_t id) const
     if (id == MAV_CMD_NAV_VTOL_LAND || id == MAV_CMD_NAV_PAYLOAD_PLACE) {
         if (landing_with_fixed_wing_spiral_approach()) {
             return plane.vtol_approach_s.approach_stage == Plane::Landing_ApproachStage::VTOL_LANDING;
+        } else if (option_is_set(OPTION::FIXED_WING_APPROACH_NO_AIRBRAKE)) {
+            return poscontrol.get_state() >= QPOS_POSITION1;
         } else {
             return true;
         }

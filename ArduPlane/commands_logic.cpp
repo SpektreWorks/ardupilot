@@ -111,6 +111,12 @@ bool Plane::start_command(const AP_Mission::Mission_Command& cmd)
             // it will then transition to VTOL and do a normal quadplane landing
             do_landing_vtol_approach(cmd);
             break;
+        } else if (quadplane.option_is_set (QuadPlane::OPTION::FIXED_WING_APPROACH_NO_AIRBRAKE)) {
+            //set target alt
+            Location loc = cmd.content.location;
+            loc.sanitize(current_loc);
+            set_next_WP(loc);
+            break;
         } else {
             return quadplane.do_vtol_land(cmd);
         }
@@ -296,6 +302,21 @@ bool Plane::verify_command(const AP_Mission::Mission_Command& cmd)        // Ret
         if (quadplane.landing_with_fixed_wing_spiral_approach() && !verify_landing_vtol_approach(cmd)) {
             // verify_landing_vtol_approach will return true once we have completed the approach,
             // in which case we fall over to normal vtol landing code
+            return false;
+        } else if (quadplane.option_is_set (QuadPlane::OPTION::FIXED_WING_APPROACH_NO_AIRBRAKE) && quadplane.poscontrol.get_state() < QuadPlane::QPOS_POSITION1) {
+            if (auto_state.crosstrack) {
+                nav_controller->update_waypoint(prev_WP_loc, next_WP_loc);
+            } else {
+                nav_controller->update_waypoint(current_loc, next_WP_loc);
+            }
+
+            // check if we should move on to the next waypoint
+            const float distance_to_land = cmd.content.location.get_distance_NE (current_loc).length();
+            const float stopping_distance = quadplane.stopping_distance();
+
+            if (stopping_distance >= distance_to_land) {
+                quadplane.do_vtol_land(cmd);
+            }
             return false;
         } else {
             return quadplane.verify_vtol_land();
