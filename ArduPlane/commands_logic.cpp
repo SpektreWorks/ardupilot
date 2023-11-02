@@ -116,7 +116,7 @@ bool Plane::start_command(const AP_Mission::Mission_Command& cmd)
             Location loc = cmd.content.location;
             loc.sanitize(current_loc);
             set_next_WP(loc);
-            quadplane.poscontrol.set_state(QuadPlane::QPOS_APPROACH);
+            quadplane.poscontrol.set_state(QuadPlane::QPOS_NONE);
             break;
         } else {
             return quadplane.do_vtol_land(cmd);
