@@ -34,6 +34,7 @@ PC14 GPIO_CAN2_SILENT OUTPUT PUSHPULL SPEED_LOW HIGH
 # setup important outputs
 PA5  SAGETECH_MAINT OUTPUT GPIO(0) HIGH # force sagetech to maintenance mode
 PD15 CHARGER_EN     OUTPUT GPIO(3) LOW # disable the charger
-PB10 BAT_HEATER OUTPUT PUSHPULL SPEED_LOW LOW # disable the battery heater
+#PB10 BAT_HEATER OUTPUT PUSHPULL SPEED_LOW LOW # disable the battery heater
+PB10 EXTERN_GPIO5   OUTPUT GPIO(5) LOW # disable heater
 
 define HAL_USE_SERIAL FALSE
