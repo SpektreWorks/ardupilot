@@ -98,6 +98,13 @@ define AP_ROBOTISSERVO_ENABLED 0
 define AP_FETTEC_ONEWIRE_ENABLED 0
 define HAL_TORQEEDO_ENABLED 0
 
+# serial port protocols
+define HAL_SERIAL2_PROTOCOL SerialProtocol_GPS
+define HAL_SERIAL3_PROTOCOL SerialProtocol_MAVLink2
+define HAL_SERIAL4_PROTOCOL SerialProtocol_None
+define HAL_SERIAL5_PROTOCOL SerialProtocol_None
+define HAL_SERIAL5_BAUD 57
+
 # define default params
 define AIRSPEED_CRUISE 25.7 # m/s
 define MIN_GNDSPEED 1 # m/s
@@ -115,3 +122,7 @@ define HAL_IMU_TEMP_MARGIN_LOW_DEFAULT 20 # must be within 20 degrees or over ta
 define HAL_BATT_MONITOR_DEFAULT 3 # voltage, 28v
 define HAL_BATT2_MONITOR_DEFAULT 8 # can
 define FLIGHT_MODE_CHANNEL 5
+define HAL_GPS_TYPE_DEFAULT 10 # SBF
+define BOARD_SER1_RTSCTS_DEFAULT 1 # flow control on serial1
+define BULD_DEFAULT_LED_TYPE 32 # drone can
+define SCRIPTING_ENABLE_DEFAULT 1
