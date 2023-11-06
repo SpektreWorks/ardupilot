@@ -2612,25 +2612,26 @@ void QuadPlane::vtol_position_controller(void)
 
         // maximum configured VTOL speed
         const float wp_speed = MAX(1.0, wp_nav->get_default_speed_xy() * 0.01);
-        const float scaled_wp_speed = get_scaled_wp_speed(degrees(diff_wp.angle()));
+        //const float scaled_wp_speed = get_scaled_wp_speed(degrees(diff_wp.angle()));
 
         // limit target speed to a the pos1 speed limit, which starts out at the initial speed
         // but is adjusted if we start putting our nose down. We always allow at least twice
         // the WP speed
         target_speed = MIN(MAX(poscontrol.pos1_speed_limit, 2*wp_speed), target_speed);
 
-        if (poscontrol.reached_wp_speed ||
-            rel_groundspeed_sq < sq(wp_speed) ||
-            wp_speed > 1.35*scaled_wp_speed) {
-            // once we get below the Q_WP_SPEED then we don't want to
-            // speed up again. At that point we should fly within the
-            // limits of the configured VTOL controller we also apply
-            // this limit when we are more than 45 degrees off the
-            // target in yaw, which is when we start to become
-            // unstable
-            target_speed = MIN(target_speed, scaled_wp_speed);
-            poscontrol.reached_wp_speed = true;
-        }
+        // this produces a terrible step function mid landing
+        //if (poscontrol.reached_wp_speed ||
+        //    rel_groundspeed_sq < sq(wp_speed) ||
+        //    wp_speed > 1.35*scaled_wp_speed) {
+        //    // once we get below the Q_WP_SPEED then we don't want to
+        //    // speed up again. At that point we should fly within the
+        //    // limits of the configured VTOL controller we also apply
+        //    // this limit when we are more than 45 degrees off the
+        //    // target in yaw, which is when we start to become
+        //    // unstable
+        //    target_speed = MIN(target_speed, scaled_wp_speed);
+        //    poscontrol.reached_wp_speed = true;
+        //}
 
         // run fixed wing navigation
         plane.nav_controller->update_waypoint(plane.current_loc, loc);
@@ -2725,7 +2726,7 @@ void QuadPlane::vtol_position_controller(void)
         disable_yaw_rate_time_constant();
 
         // setup scaling of roll and pitch angle P gains to match fixed wing gains
-        setup_rp_fw_angle_gains();
+        //setup_rp_fw_angle_gains();
 
         if (have_target_yaw) {
             attitude_control->input_euler_angle_roll_pitch_yaw(plane.nav_roll_cd,
