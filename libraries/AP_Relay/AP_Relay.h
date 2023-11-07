@@ -14,6 +14,8 @@
 #include <AP_Common/Bitmask.h>
 
 #define AP_RELAY_NUM_RELAYS 6
+#define AP_RELAY_ENABLED 1
+#define AP_MAVLINK_MSG_RELAY_STATUS_ENABLED 0
 
 /// @class	AP_Relay
 /// @brief	Class to manage the ArduPilot relay
