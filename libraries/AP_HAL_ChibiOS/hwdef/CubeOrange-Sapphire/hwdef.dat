@@ -117,6 +117,8 @@ define HAL_AIRSPEED_TYPE_DEFAULT 9 # dlvr, 10in
 define HAL_CAN_DRIVER_DEFAULT 1
 define BOARD_CONFIG_BOARD_VOLTAGE_MIN 5
 define BOARD_SAFETY_OPTION_DEFAULT 8 # safety on on disarm
+undef HAL_IMU_TEMP_DEFAULT
+define HAL_IMU_TEMP_DEFAULT 60
 undef HAL_IMU_TEMP_MARGIN_LOW_DEFAULT
 define HAL_IMU_TEMP_MARGIN_LOW_DEFAULT 20 # must be within 20 degrees or over target heat
 define HAL_BATT_MONITOR_DEFAULT 3 # voltage, 28v
