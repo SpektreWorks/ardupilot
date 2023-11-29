@@ -141,12 +141,9 @@ uint8_t Plane::readSwitch(void) const
 {
     uint16_t pulsewidth = RC_Channels::get_radio_in(g.flight_mode_channel - 1);
     if (pulsewidth <= 900 || pulsewidth >= 2200) return 255;            // This is an error condition
-    if (pulsewidth <= 1230) return 0;
-    if (pulsewidth <= 1360) return 1;
-    if (pulsewidth <= 1490) return 2;
-    if (pulsewidth <= 1620) return 3;
-    if (pulsewidth <= 1749) return 4;              // Software Manual
-    return 5;                                                           // Hardware Manual
+    if (pulsewidth <= 1360) return 0;
+    if (pulsewidth <= 1620) return 1;
+    return 2;
 }
 
 void Plane::reset_control_switch()
