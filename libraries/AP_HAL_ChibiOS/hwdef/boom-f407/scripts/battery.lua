@@ -16,10 +16,18 @@ local function hysteresis_controller(param_prefix, param_key, default_target, de
   local low_cutoff = Parameter(param_prefix .. "LOW_CUT")
 
   local active = false
+  local low_cutoff_active = false
 
   function self.update(measured)
     if (measured == nil) or (measured < low_cutoff:get()) then
       active = false
+      low_cutoff_active = true
+      return false
+    end
+
+    if low_cutoff_active == true then
+      -- if we are coming out of the low cutoff delay a cycle before enabling
+      low_cutoff_active = false
       return false
     end
 
@@ -54,35 +62,32 @@ gpio:write (heater_pin, 0)
 local charge_control = hysteresis_controller("CHARGE", 1, 58, 0.1,  0)
 local heater_control = hysteresis_controller("HEAT",   2, 30, 5, -10)
 
-
 local state = {}
 state.is_charging = false
 state.is_heating = false
-state.charge_time = uint32_t(0)
-state.heater_time = uint32_t(0)
+state.timer = uint32_t(0)
 
 local function start_charge ()
   gpio:write (charge_pin, 1)
-  state.charge_time = millis ()
+  state.timer = millis ()
   state.is_charging = true
 end
 
 local function start_heat ()
-  gpio:write (charge_pin, 1)
-  state.heater_time = millis ()
+  gpio:write (heater_pin, 1)
   state.is_heating = true
 end
 
 local function stop_all ()
   gpio:write (charge_pin, 0)
-  gpio:write (heat_pin, 0)
+  gpio:write (heater_pin, 0)
   state.is_charging = false
   state.is_heating  = false
 end
 
-local charge_limit = uint32_t (4*60)
-local heater_limit = uint32_t (5*60) -- this is a weird approach but the actual on time here
-                                     -- is the difference between this and the previous timer
+local charge_limit = uint32_t (2*60*1000) -- in milliseconds
+local heater_limit = charge_limit + uint32_t (1*60*1000) -- this is a weird approach but the actual on time here
+                                                         -- is the difference between this and the previous timer
 
 function update()
   local voltage = battery:voltage(BATT_INST)
@@ -97,23 +102,17 @@ function update()
     -- commit to 80% charge, 20% heat, over a 5 minute course.
     local now = millis ()
 
-    if state.charge_time not= state.heater_time then
-      -- we just entered the competeing needs situation clear out the timers
-      state.charge_time = now
-      state.heater_time = now
-    end
-
-    if (now - state.charge_time) > charge_limit then
+    local delta = now - state.timer
+    if (now - state.timer) > charge_limit then
       should_charge = false
     end
-    if (now - state.heater_time) > heater_limit then
+    if (now - state.timer) > heater_limit then
       should_heat = false
+      state.timer = millis ()
     end
-    if !should_charge and !should_heat then
+    if (not should_charge and not should_heat) then
         -- we turned off both charger and heater as they exceeded their time budgets
         -- clear the budgets, and start charging again
-        state.charge_time = millis ()
-        state.heater_time = millis ()
         should_charge = true
     end
   end
@@ -121,17 +120,21 @@ function update()
   -- finally if the heater is off we want to target the charger being on
   should_charge = should_charge or not should_heat
 
-  if !state.is_charging and !state.is_heating then
+  if not state.is_charging and not state.is_heating then
     -- not charging or heating, pick the optimal state
     if should_charge then
       start_charge ()
     else
       start_heat ()
     end
-  elseif should_charge and !state.is_charging then
-    stop_all ()
-  elseif should_heat and !state.is_heating then 
-    stop_all ()
+  elseif should_charge then
+    if not state.is_charging then
+      stop_all ()
+    end
+  elseif should_heat then
+    if not state.is_heating then 
+      stop_all ()
+    end
   end
 
 end
