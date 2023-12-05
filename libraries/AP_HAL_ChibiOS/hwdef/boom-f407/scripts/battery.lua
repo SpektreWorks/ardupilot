@@ -54,7 +54,7 @@ local BATT_INST = 0
 local charge_pin = 3
 local heater_pin = 5
 gpio:pinMode (charge_pin, 1)
-gpio:write (charge_pin, 0)
+-- gpio:write (charge_pin, 0)
 gpio:pinMode (heater_pin, 1)
 gpio:write (heater_pin, 0)
 
@@ -78,7 +78,13 @@ local function start_heat ()
   state.is_heating = true
 end
 
+local function stop_heat ()
+  gpio:write (heater_pin, 0)
+  state.is_heating  = false
+end
+
 local function stop_all ()
+  assert (false, "should not be called")
   gpio:write (charge_pin, 0)
   gpio:write (heater_pin, 0)
   state.is_charging = false
@@ -96,46 +102,52 @@ function update()
   local should_charge = charge_control.update(voltage)
   local should_heat   = heater_control.update(temp)
 
-  if should_charge and should_heat then
-    -- we want to run both functions, but do not have enough battery power
-    -- so we have to make a tradeoff here if we want to run both then just
-    -- commit to 80% charge, 20% heat, over a 5 minute course.
-    local now = millis ()
-
-    local delta = now - state.timer
-    if (now - state.timer) > charge_limit then
-      should_charge = false
-    end
-    if (now - state.timer) > heater_limit then
-      should_heat = false
-      state.timer = millis ()
-    end
-    if (not should_charge and not should_heat) then
-        -- we turned off both charger and heater as they exceeded their time budgets
-        -- clear the budgets, and start charging again
-        should_charge = true
-    end
-  end
-
-  -- finally if the heater is off we want to target the charger being on
-  should_charge = should_charge or not should_heat
-
-  if not state.is_charging and not state.is_heating then
-    -- not charging or heating, pick the optimal state
-    if should_charge then
-      start_charge ()
-    else
+  if should_heat then
       start_heat ()
-    end
-  elseif should_charge then
-    if not state.is_charging then
-      stop_all ()
-    end
-  elseif should_heat then
-    if not state.is_heating then 
-      stop_all ()
-    end
+  else
+      stop_heat ()
   end
+
+  -- if should_charge and should_heat then
+  --   -- we want to run both functions, but do not have enough battery power
+  --   -- so we have to make a tradeoff here if we want to run both then just
+  --   -- commit to 80% charge, 20% heat, over a 5 minute course.
+  --   local now = millis ()
+
+  --   local delta = now - state.timer
+  --   if (now - state.timer) > charge_limit then
+  --     should_charge = false
+  --   end
+  --   if (now - state.timer) > heater_limit then
+  --     should_heat = false
+  --     state.timer = millis ()
+  --   end
+  --   if (not should_charge and not should_heat) then
+  --       -- we turned off both charger and heater as they exceeded their time budgets
+  --       -- clear the budgets, and start charging again
+  --       should_charge = true
+  --   end
+  -- end
+
+  -- -- finally if the heater is off we want to target the charger being on
+  -- should_charge = should_charge or not should_heat
+
+  -- if not state.is_charging and not state.is_heating then
+  --   -- not charging or heating, pick the optimal state
+  --   if should_charge then
+  --     start_charge ()
+  --   else
+  --     start_heat ()
+  --   end
+  -- elseif should_charge then
+  --   if not state.is_charging then
+  --     stop_all ()
+  --   end
+  -- elseif should_heat then
+  --   if not state.is_heating then 
+  --     stop_all ()
+  --   end
+  -- end
 
 end
 
