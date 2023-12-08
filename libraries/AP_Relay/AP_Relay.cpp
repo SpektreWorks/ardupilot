@@ -295,6 +295,24 @@ bool AP_Relay::get(uint8_t instance) const
     return (bool)hal.gpio->read(pin);
 }
 
+// see if the relay is enabled
+bool AP_Relay::enabled(uint8_t instance) const 
+{
+    // Must be a valid instance with function relay and pin set
+    return (instance < AP_RELAY_NUM_RELAYS) && (_params[instance].pin != -1) && (_params[instance].function == AP_Relay_Params::Function::relay);
+}
+
+// see if the relay is enabled
+bool AP_Relay::enabled(AP_Relay_Params::Function function) const
+{
+    for (uint8_t instance = 0; instance < AP_RELAY_NUM_RELAYS; instance++) {
+        if ((_params[instance].function == function) && (_params[instance].pin != -1)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 #if AP_MAVLINK_MSG_RELAY_STATUS_ENABLED
 // this method may only return false if there is no space in the
 // supplied link for the message.
