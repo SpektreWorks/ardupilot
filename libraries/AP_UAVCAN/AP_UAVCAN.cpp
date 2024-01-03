@@ -537,6 +537,7 @@ void AP_UAVCAN::init(uint8_t driver_index, bool enable_filters)
     }
 #endif
 
+    AP_Param::reload_defaults_file(true);
     esc_status_listener[driver_index] = new uavcan::Subscriber<uavcan::equipment::esc::Status, ESCStatusCb>(*_node);
     if (esc_status_listener[driver_index]) {
         esc_status_listener[driver_index]->start(ESCStatusCb(this, &handle_ESC_status));
