@@ -219,7 +219,7 @@ void AP_Relay::set_pin_by_instance (uint8_t instance, bool value) {
     }
 
 #if AP_SIM_ENABLED
-    if (!(AP::sitl()->on_hardware_relay_enable_mask & (1U << instance))) {
+    if (!(AP::sitl()->on_hardware_output_enable_mask & (1U << instance))) {
         return;
     }
 #endif
