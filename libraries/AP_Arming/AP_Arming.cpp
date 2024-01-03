@@ -53,6 +53,7 @@
 #include <AP_SerialManager/AP_SerialManager.h>
 #include <AP_Vehicle/AP_Vehicle_Type.h>
 #include <AP_Scheduler/AP_Scheduler.h>
+#include <AP_ICEngine/AP_ICEngine.h>
 
 #if HAL_MAX_CAN_PROTOCOL_DRIVERS
   #include <AP_CANManager/AP_CANManager.h>
@@ -143,7 +144,7 @@ const AP_Param::GroupInfo AP_Arming::var_info[] = {
     // @Param: OPTIONS
     // @DisplayName: Arming options
     // @Description: Options that can be applied to change arming behaviour
-    // @Values: 0:None,1:Disable prearm display,2:Do not send status text on state change
+    // @Bitmask: 0:None,1:Disable prearm display,2:Do not send status text on state change,3:Use the last passing value for INS consistency check if ICE is running
     // @User: Advanced
     AP_GROUPINFO("OPTIONS", 9,   AP_Arming, _arming_options, 0),
 
@@ -336,8 +337,31 @@ bool AP_Arming::ins_accels_consistent(const AP_InertialSensor &ins)
         return true;
     }
 
-    const Vector3f &prime_accel_vec = ins.get_accel();
+    const uint32_t minimum_time = 10000;
     const uint32_t now = AP_HAL::millis();
+
+    bool passed_before_ice_start = false;
+
+#if AP_ICENGINE_ENABLED
+    if (option_enabled (Option::FREEZE_INS_CONSISTENT_WITH_ICE_RUN)) {
+        const auto *ice = AP::ice();
+        if (ice != nullptr) {
+            if (ice->get_state() >= AP_ICEngine::ICE_START_HEIGHT_DELAY) {
+                // the engine can create a lot of vibrations, if we were valid before it started
+                // we can keep that state and propegate it forward. If the system is highly unstable
+                // with temperature this may cause us to miss a bad IMU, but it's going to be masked
+                // by the engine vibration anyways
+                if (last_accel_pass_ms == 0 || now - last_accel_pass_ms < minimum_time) {
+                    last_accel_pass_ms = 0;
+                } else {
+                    passed_before_ice_start = true;
+                }
+            }
+        }
+    }
+#endif
+
+    const Vector3f &prime_accel_vec = ins.get_accel();
     for(uint8_t i=0; i<accel_count; i++) {
         if (!ins.use_accel(i)) {
             continue;
@@ -359,7 +383,7 @@ bool AP_Arming::ins_accels_consistent(const AP_InertialSensor &ins)
         // EKF is less sensitive to Z-axis error
         vec_diff.z *= 0.5f;
 
-        if (vec_diff.length() > threshold) {
+        if (vec_diff.length() > threshold && !passed_before_ice_start) {
             // this sensor disagrees with the primary sensor, so
             // accels are inconsistent:
             last_accel_pass_ms = 0;
@@ -374,7 +398,7 @@ bool AP_Arming::ins_accels_consistent(const AP_InertialSensor &ins)
     }
 
     // must pass for at least 10 seconds before we're considered consistent:
-    if (now - last_accel_pass_ms < 10000) {
+    if (now - last_accel_pass_ms < minimum_time) {
         return false;
     }
 
