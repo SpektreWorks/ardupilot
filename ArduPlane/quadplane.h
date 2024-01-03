@@ -279,6 +279,8 @@ private:
     float desired_auto_yaw_rate_cds(void) const;
 
     bool should_relax(void);
+    bool motor_failure_detected;
+    AP_Motors::SpoolState last_motors_spool_state;
     void check_for_motor_failure(void);
     void motors_output(bool run_rate_controller = true);
     void Log_Write_QControl_Tuning();

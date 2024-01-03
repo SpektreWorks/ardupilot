@@ -1774,9 +1774,13 @@ void SLT_Transition::VTOL_update()
 void QuadPlane::check_for_motor_failure ()
 {
     // if we are spooling up then check that the motor spun appropriately
-    if ((motors->get_spool_state() == AP_Motors::SpoolState::SPOOLING_UP) &&
+    const auto current_spool_state = motors->get_spool_state();
+    if ((current_spool_state == AP_Motors::SpoolState::THROTTLE_UNLIMITED) &&
+        (last_motors_spool_state == AP_Motors::SpoolState::SPOOLING_UP) && // only check if we just swapped states
         ((motor_spool_min_rpm > 0) || (motor_spool_max_rpm > 0)) &&
+        !motor_failure_detected &&
          !AP::esc_telem().are_motors_running(motors->get_motor_mask(), motor_spool_min_rpm, motor_spool_max_rpm)) {
+        motor_failure_detected = true;
         gcs().send_text(MAV_SEVERITY_WARNING, "Motor failure detected");
         // select a resolution to the problem
 
@@ -1789,7 +1793,10 @@ void QuadPlane::check_for_motor_failure ()
             // Not sure where we might be, just trust RTL to sort us out
             gcs().send_text(MAV_SEVERITY_INFO, "Motor failure resolution: RTL");
         }
+    } else {
+        motor_failure_detected = false;
     }
+    last_motors_spool_state = current_spool_state;
 }
 
 /*
