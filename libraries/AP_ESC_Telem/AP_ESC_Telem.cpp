@@ -132,12 +132,16 @@ bool AP_ESC_Telem::are_motors_running(uint32_t servo_channel_mask, float min_rpm
             const volatile AP_ESC_Telem_Backend::RpmData& rpmdata = _rpm_data[i];
             // we choose a relatively strict measure of health so that failsafe actions can rely on the results
             if (!rpm_data_within_timeout(rpmdata, now, ESC_RPM_CHECK_TIMEOUT_US)) {
+                gcs().send_text (MAV_SEVERITY_INFO, "failed %d on timeout", i + 1);
+
                 return false;
             }
             if (rpmdata.rpm < min_rpm) {
+                gcs().send_text (MAV_SEVERITY_INFO, "failed %f on min rpm", rpmdata.rpm);
                 return false;
             }
             if ((max_rpm > 0) && (rpmdata.rpm > max_rpm)) {
+                gcs().send_text (MAV_SEVERITY_INFO, "failed %f on max rpm", rpmdata.rpm);
                 return false;
             }
         }
