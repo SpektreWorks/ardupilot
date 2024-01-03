@@ -13,9 +13,16 @@
 #include <AP_Relay/AP_Relay_Params.h>
 #include <AP_Common/Bitmask.h>
 
-#define AP_RELAY_NUM_RELAYS 6
 #define AP_RELAY_ENABLED 1
 #define AP_MAVLINK_MSG_RELAY_STATUS_ENABLED 0
+
+#ifndef AP_RELAY_NUM_RELAYS
+  #define AP_RELAY_NUM_RELAYS 6
+#endif
+
+#if AP_RELAY_ENABLED && (AP_RELAY_NUM_RELAYS < 1)
+  #error There must be at least one relay instance if using AP_Relay
+#endif
 
 /// @class	AP_Relay
 /// @brief	Class to manage the ArduPilot relay
