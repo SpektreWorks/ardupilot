@@ -522,6 +522,25 @@ const AP_Param::GroupInfo QuadPlane::var_info2[] = {
     // @User: Advanced
     AP_GROUPINFO("M_FAIL_MAX_RPM", 36, QuadPlane, motor_spool_max_rpm, 0),
 
+    // @Param: M_FAIL_BAT_CUR
+    // @DisplayName: Motor failure for bad battery install time
+    // @Description: High current threshold to trigger a qland abort. 0 disables the check
+    // @Units: V
+    // @RebootRequired: False
+    AP_GROUPINFO("M_FAIL_BAT_CUR", 50, QuadPlane, motor_failure_current_high_threshold, 0),
+
+    // @Param: M_FAIL_BAT_A
+    // @DisplayName: Motor failure for bad battery install time battery instance
+    // @Description: Index for a battery which is monitoring VTOL power draw
+    // @RebootRequired: False
+    AP_GROUPINFO("M_FAIL_BAT_A", 51, QuadPlane, motor_failure_current_batt_a, 0),
+
+    // @Param: M_FAIL_BAT_B
+    // @DisplayName: Motor failure for bad battery install time battery instance
+    // @Description: Index for a battery which is monitoring VTOL power draw
+    // @RebootRequired: False
+    AP_GROUPINFO("M_FAIL_BAT_B", 52, QuadPlane, motor_failure_current_batt_b, 0),
+
     AP_GROUPEND
 };
 
@@ -1799,6 +1818,39 @@ void QuadPlane::check_for_motor_failure ()
     last_motors_spool_state = current_spool_state;
 }
 
+void QuadPlane::check_for_battery_imbalance()
+{
+    const uint32_t now = AP_HAL::millis();
+    // if we are spooling up then check that the motor spun appropriately
+    const auto current_spool_state = motors->get_spool_state();
+    if ((current_spool_state == AP_Motors::SpoolState::THROTTLE_UNLIMITED) &&
+        (plane.control_mode != &plane.mode_qland) && is_positive(motor_failure_current_high_threshold)) {
+        const auto &monitor = plane.battery;
+
+        const uint8_t instance_a = (uint8_t)motor_failure_current_batt_a - 1;
+        const uint8_t instance_b = (uint8_t)motor_failure_current_batt_b - 1;
+
+        float current_a, current_b;
+        if (monitor.healthy(instance_a) && monitor.healthy(instance_b) && // sanity check
+            monitor.current_amps(current_a, instance_a) && monitor.current_amps(current_b, instance_b)) {
+            const float high_current = MAX(current_a, current_b);
+            const float low_current = MIN(current_a, current_b);
+
+            const float low_threshold = 15;
+            const uint32_t check_window = 500;
+
+            if ((low_current < low_threshold) && (high_current > motor_failure_current_high_threshold)) {
+                if ((now - last_passed_current_check_ms) > check_window) {
+                   gcs().send_text(MAV_SEVERITY_WARNING, "Battery imbalance detected (%1.1f, %1.1f)", current_a, current_b);
+                   plane.set_mode(plane.mode_qland, ModeReason::FAILSAFE);
+                }
+                return;
+            }
+        }
+    }
+    last_passed_current_check_ms = now;
+}
+
 /*
   update motor output for quadplane
  */
@@ -2031,6 +2083,7 @@ void QuadPlane::update_throttle_hover()
 void QuadPlane::motors_output(bool run_rate_controller)
 {
     check_for_motor_failure();
+    check_for_battery_imbalance();
 
     /* Delay for ARMING_DELAY_MS after arming before allowing props to spin:
        1) for safety (OPTION_DELAY_ARMING)

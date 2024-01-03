@@ -282,6 +282,7 @@ private:
     bool motor_failure_detected;
     AP_Motors::SpoolState last_motors_spool_state;
     void check_for_motor_failure(void);
+    void check_for_battery_imbalance(void);
     void motors_output(bool run_rate_controller = true);
     void Log_Write_QControl_Tuning();
     void log_QPOS(void);
@@ -358,6 +359,11 @@ private:
 
     AP_Int16 motor_spool_min_rpm;
     AP_Int16 motor_spool_max_rpm;
+
+    uint32_t last_passed_current_check_ms;
+    AP_Float motor_failure_current_high_threshold;
+    AP_Int8 motor_failure_current_batt_a;
+    AP_Int8 motor_failure_current_batt_b;
     
     // alt to switch to QLAND_FINAL
     AP_Float land_final_alt;
