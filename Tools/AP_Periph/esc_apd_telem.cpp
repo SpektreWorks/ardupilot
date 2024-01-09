@@ -25,7 +25,7 @@ void ESC_APD_Telem::init(AP_HAL::UARTDriver *_uart, float num_poles) {
     uart = _uart;
     uart->begin(115200);
 
-    pole_count = num_poles / 2;
+    pole_count = num_poles;
 }
 
 bool ESC_APD_Telem::update() {

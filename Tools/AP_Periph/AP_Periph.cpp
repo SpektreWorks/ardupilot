@@ -168,10 +168,10 @@ void AP_Periph_FW::init()
 #endif
 
 #ifdef HAL_PERIPH_ENABLE_ESC_APD
-    apd_esc_telem[0].init(hal.serial(APD_ESC_SERIAL_0), 22);
+    apd_esc_telem[0].init(hal.serial(APD_ESC_SERIAL_0), APD_POLE_COUNT);
   #if APD_ESC_INSTANCES > 1
     static_assert(APD_ESC_SERIAL_0 != APD_ESC_SERIAL_1, "APD ESC's must have different serial numbers");
-    apd_esc_telem[1].init(hal.serial(APD_ESC_SERIAL_1), 22);
+    apd_esc_telem[1].init(hal.serial(APD_ESC_SERIAL_1), APD_POLE_COUNT);
   #endif // APD_ESC_INSTANCES > 1
 
 #endif
