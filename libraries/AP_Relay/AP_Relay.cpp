@@ -10,7 +10,7 @@
 #include <AP_Logger/AP_Logger.h>
 
 #if AP_RELAY_DRONECAN_ENABLED
-#include <AP_DroneCAN/AP_DroneCAN.h>
+#include <AP_UAVCAN/AP_UAVCAN.h>
 #include <AP_CANManager/AP_CANManager.h>
 #endif
 
@@ -487,22 +487,6 @@ void AP_Relay::DroneCAN::set_pin(const int16_t pin, const bool value)
     // Set pin and ensure enabled for streaming
     state[index].enabled = true;
     state[index].value = value;
-
-    // Broadcast msg on all channels
-    // Just a single send, rely on streaming to fill in any lost packet
-
-    uavcan_equipment_hardpoint_Command msg {};
-    msg.hardpoint_id = index;
-    msg.command = state[index].value;
-
-    uint8_t can_num_drivers = AP::can().get_num_drivers();
-    for (uint8_t i = 0; i < can_num_drivers; i++) {
-        auto *ap_dronecan = AP_DroneCAN::get_dronecan(i);
-        if (ap_dronecan != nullptr) {
-            ap_dronecan->relay_hardpoint.broadcast(msg);
-        }
-    }
-
 }
 
 // Get relay state from pin number, this relies on a cached value, assume remote pin is in sync
@@ -514,7 +498,7 @@ bool AP_Relay::DroneCAN::get_pin(const int16_t pin) const
 
 // Populate message and update index with the sent command
 // This will allow the caller to cycle through each enabled pin
-bool AP_Relay::DroneCAN::populate_next_command(uint8_t &index, uavcan_equipment_hardpoint_Command &msg) const
+bool AP_Relay::DroneCAN::populate_next_command(uint8_t &index, uint8_t &hardpoint_id, uint16_t& command) const
 {
     // Find the next enabled index
     for (uint8_t i = 0; i < ARRAY_SIZE(state); i++) {
@@ -526,8 +510,8 @@ bool AP_Relay::DroneCAN::populate_next_command(uint8_t &index, uavcan_equipment_
         }
 
         // Update command and index then return
-        msg.hardpoint_id = new_index;
-        msg.command = state[new_index].value;
+        hardpoint_id = new_index;
+        command = state[new_index].value;
         index = new_index;
         return true;
     }
