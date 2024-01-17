@@ -993,6 +993,9 @@ ap_message GCS_MAVLINK::mavlink_id_to_ap_message_id(const uint32_t mavlink_id) c
 #if HAL_ADSB_ENABLED
         { MAVLINK_MSG_ID_UAVIONIX_ADSB_OUT_STATUS, MSG_UAVIONIX_ADSB_OUT_STATUS},
 #endif
+#if AP_MAVLINK_MSG_RELAY_STATUS_ENABLED
+        { MAVLINK_MSG_ID_RELAY_STATUS, MSG_RELAY_STATUS},
+#endif
             };
 
     for (uint8_t i=0; i<ARRAY_SIZE(map); i++) {
@@ -5454,6 +5457,19 @@ void GCS_MAVLINK::send_uavionix_adsb_out_status() const
 }
 #endif
 
+#if AP_MAVLINK_MSG_RELAY_STATUS_ENABLED
+bool GCS_MAVLINK::send_relay_status() const
+{
+    AP_Relay *relay = AP::relay();
+    if (relay == nullptr) {
+        // must only return false if out of space:
+        return true;
+    }
+
+    return relay->send_relay_status(*this);
+}
+#endif  // AP_MAVLINK_MSG_RELAY_STATUS_ENABLED
+
 void GCS_MAVLINK::send_autopilot_state_for_gimbal_device() const
 {
     // get attitude
@@ -5882,6 +5898,12 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
         send_uavionix_adsb_out_status();
 #endif
         break;
+
+#if AP_MAVLINK_MSG_RELAY_STATUS_ENABLED
+    case MSG_RELAY_STATUS:
+        ret = send_relay_status();
+        break;
+#endif
 
     default:
         // try_send_message must always at some stage return true for
