@@ -63,6 +63,10 @@
 #include <com/hobbywing/esc/RawCommand.hpp>
 #endif
 
+#if AP_RELAY_DRONECAN_ENABLED
+#include <uavcan/equipment/hardpoint/Command.hpp>
+#endif
+
 #include <AP_Arming/AP_Arming.h>
 #include <AP_Baro/AP_Baro_UAVCAN.h>
 #include <AP_RangeFinder/AP_RangeFinder_UAVCAN.h>
@@ -176,7 +180,17 @@ const AP_Param::GroupInfo AP_UAVCAN::var_info[] = {
     // @Range: 1024 16384
     // @User: Advanced
     AP_GROUPINFO("POOL", 8, AP_UAVCAN, _pool_size, UAVCAN_NODE_POOL_SIZE),
-    
+
+#if AP_RELAY_DRONECAN_ENABLED
+    // @Param: RLY_RT
+    // @DisplayName: DroneCAN relay output rate
+    // @Description: Maximum transmit rate for relay outputs, note that this rate is per message each message does 1 relay, so if with more relays will take longer to update at the same rate, a extra message will be sent when a relay changes state
+    // @Range: 0 200
+    // @Units: Hz
+    // @User: Advanced
+    AP_GROUPINFO("RLY_RT", 23, AP_UAVCAN, _relay.rate_hz, 10),
+#endif
+
     AP_GROUPEND
 };
 
@@ -211,6 +225,10 @@ static uavcan::Subscriber<com::hobbywing::esc::StatusMsg1, HobbywingStatus1Cb> *
 UC_REGISTRY_BINDER(HobbywingStatus2Cb, com::hobbywing::esc::StatusMsg2);
 static uavcan::Subscriber<com::hobbywing::esc::StatusMsg2, HobbywingStatus2Cb> *hobbywing_Status2_listener[HAL_MAX_CAN_PROTOCOL_DRIVERS];
 #endif // AP_DRONECAN_HOBBYWING_ESC_ENABLED
+
+#if AP_RELAY_DRONECAN_ENABLED
+static uavcan::Publisher<uavcan::equipment::hardpoint::Command>* relay_hardpoint[HAL_MAX_CAN_PROTOCOL_DRIVERS];
+#endif
 
 // Clients
 UC_CLIENT_CALL_REGISTRY_BINDER(ParamGetSetCb, uavcan::protocol::param::GetSet);
@@ -511,6 +529,12 @@ void AP_UAVCAN::init(uint8_t driver_index, bool enable_filters)
     notify_state[driver_index]->setTxTimeout(uavcan::MonotonicDuration::fromMSec(20));
     notify_state[driver_index]->setPriority(uavcan::TransferPriority::OneHigherThanLowest);
 
+#if AP_RELAY_DRONECAN_ENABLED
+    relay_hardpoint[driver_index] = new uavcan::Publisher<uavcan::equipment::hardpoint::Command>(*_node);
+    relay_hardpoint[driver_index]->setTxTimeout(uavcan::MonotonicDuration::fromMSec(20));
+    relay_hardpoint[driver_index]->setPriority(uavcan::TransferPriority::OneHigherThanLowest);
+#endif
+
     param_get_set_client[driver_index] = new uavcan::ServiceClient<uavcan::protocol::param::GetSet, ParamGetSetCb>(*_node, ParamGetSetCb(this, &AP_UAVCAN::handle_param_get_set_response));
 
     param_execute_opcode_client[driver_index] = new uavcan::ServiceClient<uavcan::protocol::param::ExecuteOpcode, ParamExecuteOpcodeCb>(*_node, ParamExecuteOpcodeCb(this, &AP_UAVCAN::handle_param_save_response));
@@ -638,6 +662,9 @@ void AP_UAVCAN::loop(void)
         _dna_server->verify_nodes();
 #if AP_OPENDRONEID_ENABLED
         AP::opendroneid().dronecan_send(this);
+#endif
+#if AP_RELAY_DRONECAN_ENABLED
+        relay_hardpoint_send();
 #endif
 
 #if AP_DRONECAN_SEND_GPS
@@ -1258,6 +1285,33 @@ void AP_UAVCAN::safety_state_send()
         arming_status[_driver_index]->broadcast(arming_msg);
     }
 }
+
+// Send relay outputs with hardpoint msg
+#if AP_RELAY_DRONECAN_ENABLED
+void AP_UAVCAN::relay_hardpoint_send()
+{
+    const uint32_t now = AP_HAL::millis();
+    if ((_relay.rate_hz == 0) || ((now - _relay.last_send_ms) < uint32_t(1000 / _relay.rate_hz))) {
+        // Rate limit per user config
+        return;
+    }
+    _relay.last_send_ms = now;
+
+    AP_Relay *relay = AP::relay();
+    if (relay == nullptr) {
+        return;
+    }
+
+    uavcan::equipment::hardpoint::Command msg;
+ 
+    // Relay will populate the next command to send and update the last index
+    // This will cycle through each relay in turn
+    if (relay->dronecan.populate_next_command(_relay.last_index, msg.hardpoint_id, msg.command)) {
+        relay_hardpoint[_driver_index]->broadcast(msg);
+    }
+
+}
+#endif // AP_RELAY_DRONECAN_ENABLED
 
 /*
  send RTCMStream packet on all active UAVCAN drivers
