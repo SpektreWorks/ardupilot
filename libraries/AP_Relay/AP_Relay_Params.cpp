@@ -17,7 +17,7 @@ const AP_Param::GroupInfo AP_Relay_Params::var_info[] = {
     // @Values{Plane}: 9:ICE Starter
 
     // @User: Standard
-    AP_GROUPINFO_FLAGS("FUNCTION", 1, AP_Relay_Params, function, (float)Function::none, AP_PARAM_FLAG_ENABLE),
+    AP_GROUPINFO_FLAGS("FUNCTION", 1, AP_Relay_Params, function, (float)FUNCTION::NONE, AP_PARAM_FLAG_ENABLE),
 
     // @Param: PIN
     // @DisplayName: Relay pin
@@ -31,7 +31,7 @@ const AP_Param::GroupInfo AP_Relay_Params::var_info[] = {
     // @Description: Should the relay default to on or off, this only applies to RELAYx_FUNC "Relay" (1). All other uses will pick the appropriate default output state from within the controlling function's parameters.
     // @Values: 0: Off,1:On,2:NoChange
     // @User: Standard
-    AP_GROUPINFO("DEFAULT", 3, AP_Relay_Params, default_state, (float)Default_State::Off),
+    AP_GROUPINFO("DEFAULT", 3, AP_Relay_Params, default_state, (float)DefaultState::OFF),
 
     AP_GROUPEND
 

@@ -11,27 +11,27 @@ public:
     /* Do not allow copies */
     CLASS_NO_COPY(AP_Relay_Params);
 
-    enum class Default_State : uint8_t {
-        Off = 0,
-        On = 1,
-        NoChange = 2,
+    enum class DefaultState : uint8_t {
+        OFF = 0,
+        ON = 1,
+        NO_CHANGE = 2,
     };
 
-    enum class Function : uint8_t {
-        none     = 0,
-        relay    = 1,
-        ignition = 2,
-        parachute = 3,
-        camera = 4,
+    enum class FUNCTION : uint8_t {
+        NONE     = 0,
+        RELAY    = 1,
+        IGNITION = 2,
+        PARACHUTE = 3,
+        CAMERA = 4,
         BRUSHED_REVERSE_1 = 5,
         BRUSHED_REVERSE_2 = 6,
         BRUSHED_REVERSE_3 = 7,
         BRUSHED_REVERSE_4 = 8,
         ICE_STARTER = 9,
-        num_functions // must be the last entry
+        NUM_FUNCTIONS // must be the last entry
     };
 
-    AP_Enum<Function> function;         // relay function
-    AP_Int8 pin;                          // gpio pin number
-    AP_Enum<Default_State> default_state; // default state
+    AP_Enum<FUNCTION> function;            // relay function
+    AP_Int16 pin;                          // gpio pin number
+    AP_Enum<DefaultState> default_state;  // default state
 };
