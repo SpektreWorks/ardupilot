@@ -212,7 +212,7 @@ void AP_Relay::convert_params()
     _params[0].pin.save (true);
 }
 
-void AP_Relay::set_defaults () {
+void AP_Relay::set_defaults() {
     const int8_t pins[] = { RELAY1_PIN_DEFAULT,
                              RELAY2_PIN_DEFAULT,
                              RELAY3_PIN_DEFAULT,
@@ -223,14 +223,14 @@ void AP_Relay::set_defaults () {
     for (uint8_t i = 0; i < MIN(ARRAY_SIZE(_params), ARRAY_SIZE(pins)); i++) {
         // set the default
         if (pins[i] != -1) {
-            _params[i].pin.set_and_default(pins[i]);
+            _params[i].pin.set_default(pins[i]);
         }
     }
 }
 
 void AP_Relay::init()
 {
-    set_defaults ();
+    set_defaults();
 
     convert_params();
 
@@ -242,30 +242,30 @@ void AP_Relay::init()
             continue;
         }
 
-        const AP_Relay_Params::Function function = _params[instance].function;
-        if (function < AP_Relay_Params::Function::relay || function >= AP_Relay_Params::Function::num_functions) {
+        const AP_Relay_Params::FUNCTION function = _params[instance].function;
+        if (function <= AP_Relay_Params::FUNCTION::NONE || function >= AP_Relay_Params::FUNCTION::NUM_FUNCTIONS) {
             // invalid function, skip it
             continue;
         }
 
-        if (function == AP_Relay_Params::Function::relay) {
+        if (function == AP_Relay_Params::FUNCTION::RELAY) {
             // relay by instance number, set the state to match our output
-            const AP_Relay_Params::Default_State default_state = _params[instance].default_state;
-            if ((default_state == AP_Relay_Params::Default_State::Off) ||
-                (default_state == AP_Relay_Params::Default_State::On)) {
+            const AP_Relay_Params::DefaultState default_state = _params[instance].default_state;
+            if ((default_state == AP_Relay_Params::DefaultState::OFF) ||
+                (default_state == AP_Relay_Params::DefaultState::ON)) {
 
-                set(instance, (bool)default_state);
+                set_pin_by_instance(instance, (bool)default_state);
             }
         } else {
             // all functions are supposed to be off by default
             // this will need revisiting when we support inversion
-            set_pin_by_instance (instance, false);
+            set_pin_by_instance(instance, false);
         }
     }
 }
 
-void AP_Relay::set(const AP_Relay_Params::Function function, const bool value) {
-    if (function <= AP_Relay_Params::Function::none && function >= AP_Relay_Params::Function::num_functions) {
+void AP_Relay::set(const AP_Relay_Params::FUNCTION function, const bool value) {
+    if (function <= AP_Relay_Params::FUNCTION::NONE && function >= AP_Relay_Params::FUNCTION::NUM_FUNCTIONS) {
         // invalid function
         return;
     }
@@ -275,13 +275,14 @@ void AP_Relay::set(const AP_Relay_Params::Function function, const bool value) {
             continue;
         }
 
-        set_pin_by_instance (instance, value);
+        set_pin_by_instance(instance, value);
     }
 }
 
 // set a pins output state by instance and log if required
 // this is an internal helper, instance must have already been validated to be in range
-void AP_Relay::set_pin_by_instance (uint8_t instance, bool value) {
+void AP_Relay::set_pin_by_instance(uint8_t instance, bool value)
+{
     const int8_t pin = _params[instance].pin;
     if (pin == -1) {
         // no valid pin to set it on, skip it
@@ -312,11 +313,11 @@ void AP_Relay::set(const uint8_t instance, const bool value)
         return;
     }
 
-    if (_params[instance].function != AP_Relay_Params::Function::relay) {
+    if (_params[instance].function != AP_Relay_Params::FUNCTION::RELAY) {
         return;
     }
 
-    set_pin_by_instance (instance, value);
+    set_pin_by_instance(instance, value);
 }
 
 void AP_Relay::toggle(uint8_t instance)
@@ -332,9 +333,7 @@ bool AP_Relay::arming_checks(size_t buflen, char *buffer) const
     for (uint8_t i=0; i<ARRAY_SIZE(_params); i++) {
         const int8_t pin = _params[i].pin.get();
         if (pin != -1 && !hal.gpio->valid_pin(pin)) {
-            // if this assert triggers the param_name_buf probably just needs to be expanded
-            static_assert ((AP_RELAY_NUM_RELAYS > 0) && (AP_RELAY_NUM_RELAYS < 10), "To many relays for the arming message buffer");
-            char param_name_buf[11];
+            char param_name_buf[14];
             hal.util->snprintf(param_name_buf, ARRAY_SIZE(param_name_buf), "RELAY%u_PIN", unsigned(i+1));
             uint8_t servo_ch;
             if (hal.gpio->pin_to_servo_channel(pin, servo_ch)) {
@@ -355,7 +354,7 @@ bool AP_Relay::get(uint8_t instance) const
         return false;
     }
 
-    const int8_t pin = _params[instance].pin.get ();
+    const int8_t pin = _params[instance].pin.get();
 
     if (pin < 0) {
         // invalid pin
@@ -369,11 +368,11 @@ bool AP_Relay::get(uint8_t instance) const
 bool AP_Relay::enabled(uint8_t instance) const 
 {
     // Must be a valid instance with function relay and pin set
-    return (instance < ARRAY_SIZE(_params)) && (_params[instance].pin != -1) && (_params[instance].function == AP_Relay_Params::Function::relay);
+    return (instance < ARRAY_SIZE(_params)) && (_params[instance].pin != -1) && (_params[instance].function == AP_Relay_Params::FUNCTION::RELAY);
 }
 
 // see if the relay is enabled
-bool AP_Relay::enabled(AP_Relay_Params::Function function) const
+bool AP_Relay::enabled(AP_Relay_Params::FUNCTION function) const
 {
     for (uint8_t instance = 0; instance < ARRAY_SIZE(_params); instance++) {
         if ((_params[instance].function == function) && (_params[instance].pin != -1)) {
@@ -403,7 +402,7 @@ bool AP_Relay::send_relay_status(const GCS_MAVLINK &link) const
         const uint16_t relay_bit_mask = 1U << i;
         present_mask |= relay_bit_mask;
 
-        if (get (i)) {
+        if (get(i)) {
             on_mask |= relay_bit_mask;
         }
     }
