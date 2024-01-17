@@ -386,8 +386,8 @@ void AP_ICEngine::update(void)
         SRV_Channels::set_output_pwm(SRV_Channel::k_starter,  pwm_starter_off);
 #if AP_RELAY_ENABLED
         if (relay != nullptr) {
-            relay->set(AP_Relay_Params::Function::ignition, false);
-            relay->set(AP_Relay_Params::Function::starter, false);
+            relay->set(AP_Relay_Params::FUNCTION::IGNITION, false);
+            relay->set(AP_Relay_Params::FUNCTION::ICE_STARTER, false);
         }
 #endif // AP_RELAY_ENABLED
         starter_start_time_ms = 0;
@@ -399,8 +399,8 @@ void AP_ICEngine::update(void)
         SRV_Channels::set_output_pwm(SRV_Channel::k_starter,  pwm_starter_off);
 #if AP_RELAY_ENABLED
         if (relay != nullptr) {
-            relay->set(AP_Relay_Params::Function::ignition, true);
-            relay->set(AP_Relay_Params::Function::starter, false);
+            relay->set(AP_Relay_Params::FUNCTION::IGNITION, true);
+            relay->set(AP_Relay_Params::FUNCTION::ICE_STARTER, false);
         }
 #endif // AP_RELAY_ENABLED
         break;
@@ -410,8 +410,8 @@ void AP_ICEngine::update(void)
         SRV_Channels::set_output_pwm(SRV_Channel::k_starter,  pwm_starter_on);
 #if AP_RELAY_ENABLED
         if (relay != nullptr) {
-            relay->set(AP_Relay_Params::Function::ignition, true);
-            relay->set(AP_Relay_Params::Function::starter, true);
+            relay->set(AP_Relay_Params::FUNCTION::IGNITION, true);
+            relay->set(AP_Relay_Params::FUNCTION::ICE_STARTER, true);
         }
 #endif // AP_RELAY_ENABLED
         if (starter_start_time_ms == 0) {
@@ -425,8 +425,8 @@ void AP_ICEngine::update(void)
         SRV_Channels::set_output_pwm(SRV_Channel::k_starter,  pwm_starter_off);
 #if AP_RELAY_ENABLED
         if (relay != nullptr) {
-            relay->set(AP_Relay_Params::Function::ignition, true);
-            relay->set(AP_Relay_Params::Function::starter, false);
+            relay->set(AP_Relay_Params::FUNCTION::IGNITION, true);
+            relay->set(AP_Relay_Params::FUNCTION::ICE_STARTER, false);
         }
 #endif // AP_RELAY_ENABLED
         starter_start_time_ms = 0;
