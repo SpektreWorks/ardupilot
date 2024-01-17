@@ -14,7 +14,6 @@
 #include <AP_Common/Bitmask.h>
 
 #define AP_RELAY_ENABLED 1
-#define AP_MAVLINK_MSG_RELAY_STATUS_ENABLED 0
 
 #ifndef AP_RELAY_NUM_RELAYS
   #define AP_RELAY_NUM_RELAYS 6

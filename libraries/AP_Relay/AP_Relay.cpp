@@ -14,6 +14,8 @@
 #include <AP_CANManager/AP_CANManager.h>
 #endif
 
+#include <GCS_MAVLink/GCS.h>
+
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
   #define RELAY1_PIN_DEFAULT 13
 
