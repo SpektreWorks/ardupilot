@@ -30,6 +30,7 @@
 #include <uavcan/protocol/param/GetSet.hpp>
 #include <uavcan/protocol/param/ExecuteOpcode.hpp>
 #include <SRV_Channel/SRV_Channel_config.h>
+#include <AP_Relay/AP_Relay.h>
 
 
 #ifndef UAVCAN_SRV_NUMBER
@@ -409,6 +410,15 @@ private:
 #if AP_DRONECAN_HIMARK_SERVO_ENABLED
     bool himark_enabled;
     static void handle_himark_servoinfo(AP_UAVCAN* ap_uavcan, uint8_t node_id, const HimarkServoInfoCb &cb);
+#endif
+
+#if AP_RELAY_DRONECAN_ENABLED
+    void relay_hardpoint_send();
+    struct {
+        AP_Int16 rate_hz;
+        uint32_t last_send_ms;
+        uint8_t last_index;
+    } _relay;
 #endif
     
     // incoming button handling
