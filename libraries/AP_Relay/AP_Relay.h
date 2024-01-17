@@ -24,18 +24,15 @@
   #error There must be at least one relay instance if using AP_Relay
 #endif
 
-#define AP_RELAY_DRONECAN_ENABLED AP_RELAY_ENABLED && HAL_ENABLE_DRONECAN_DRIVERS && !defined(HAL_BUILD_AP_PERIPH)
+#define AP_RELAY_DRONECAN_ENABLED AP_RELAY_ENABLED && HAL_ENABLE_LIBUAVCAN_DRIVERS && !defined(HAL_BUILD_AP_PERIPH)
 
-#if AP_RELAY_DRONECAN_ENABLED
-#include <AP_DroneCAN/AP_DroneCAN.h>
-#endif
 
 /// @class	AP_Relay
 /// @brief	Class to manage the ArduPilot relay
 class AP_Relay {
 #if AP_RELAY_DRONECAN_ENABLED
     // Allow DroneCAN to directly access private DroneCAN state
-    friend class AP_DroneCAN;
+    friend class AP_UAVCAN;
 #endif
 public:
     AP_Relay();
@@ -96,7 +93,7 @@ private:
     // Get relay state from pin number
     bool get_pin(const int16_t pin) const;
 
-#if HAL_ENABLE_DRONECAN_DRIVERS
+#if AP_RELAY_DRONECAN_ENABLED
     // Virtual DroneCAN pins
     class DroneCAN {
     public:
@@ -107,7 +104,7 @@ private:
         void enable_pin(int16_t pin);
 
         // Populate message and update index with the sent command
-        bool populate_next_command(uint8_t &index, uavcan_equipment_hardpoint_Command &msg) const;
+        bool populate_next_command(uint8_t &index, uint8_t &hardpoint_id, uint16_t& command) const;
 
         // Set DroneCAN relay state from pin number
         void set_pin(const int16_t pin, const bool value);
@@ -131,7 +128,7 @@ private:
         } state[num_pins];
 
     } dronecan;
-#endif // HAL_ENABLE_DRONECAN_DRIVERS
+#endif // AP_RELAY_DRONECAN_ENABLED
 
 };
 
