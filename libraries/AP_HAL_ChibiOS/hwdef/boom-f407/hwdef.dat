@@ -76,6 +76,9 @@ PD7  POWER_GOOD1    INPUT  GPIO(2) # 28v primary
 PD15 CHARGER_EN     OUTPUT GPIO(3) HIGH # run the charger
 PE4  ID_PIN         INPUT  GPIO(4) # high on left, low on right
 
+define HAL_PERIPH_ENABLE_RELAY 1
+define AP_RELAY_ENABLED 1
+
 define HAL_PERIPH_ENABLE_GPS
 define HAL_PERIPH_GPS_PORT_DEFAULT 3
 define GPS_MAX_RATE_MS 200
