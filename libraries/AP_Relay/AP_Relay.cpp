@@ -14,6 +14,7 @@
 #include <AP_HAL/AP_HAL.h>
 #include <GCS_MAVLink/GCS.h>
 #include <AP_Logger/AP_Logger.h>
+#include <AP_Math/AP_Math.h>
 
 #include <AP_ICEngine/AP_ICEngine.h>
 #include <AP_Parachute/AP_Parachute.h>
