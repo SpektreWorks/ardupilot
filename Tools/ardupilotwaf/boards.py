@@ -166,6 +166,7 @@ class Board:
             '-ffunction-sections',
             '-fno-exceptions',
             '-fsigned-char',
+            '-Wno-maybe-uninitialized',
 
             '-Wall',
             '-Wextra',
