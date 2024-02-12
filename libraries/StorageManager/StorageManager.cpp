@@ -21,6 +21,7 @@
 
 #include <AP_HAL/AP_HAL.h>
 #include "StorageManager.h"
+#include <AP_BoardConfig/AP_BoardConfig.h>
 #include <stdio.h>
 
 
