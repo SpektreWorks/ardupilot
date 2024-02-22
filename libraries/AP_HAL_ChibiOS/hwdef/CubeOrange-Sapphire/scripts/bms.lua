@@ -6,17 +6,17 @@ local param_prefix = "VPS_"
 
 assert(param:add_table(param_key, param_prefix, 3*2*2+2))
 
-local function hysteresis_controller(param_prefix, battery_fn, battery_instance, pin, param_ofs, default_target, default_hysteresis, default_low_cutoff)
+local function hysteresis_controller(param_name, battery_fn, battery_instance, pin, param_ofs, default_target, default_hysteresis, default_low_cutoff)
   local self = {}
 
   -- Add params
-  assert(param:add_param(param_key, (3 * param_ofs) + 1, param_prefix .. "TARGET", default_target))
-  assert(param:add_param(param_key, (3 * param_ofs) + 2, param_prefix .. "HYSTER", default_hysteresis))
-  assert(param:add_param(param_key, (3 * param_ofs) + 3, param_prefix .. "LOW_CT", default_low_cutoff))
+  assert(param:add_param(param_key, (3 * param_ofs) + 1,  param_name .. "TARGET", default_target))
+  assert(param:add_param(param_key, (3 * param_ofs) + 2,  param_name .. "HYSTER", default_hysteresis))
+  assert(param:add_param(param_key, (3 * param_ofs) + 3,  param_name .. "LOW_CT", default_low_cutoff))
 
-  local target =     Parameter("VPS_" .. param_prefix .. "TARGET")
-  local hysteresis = Parameter("VPS_" .. param_prefix .. "HYSTER")
-  local low_cutoff = Parameter("VPS_" .. param_prefix .. "LOW_CT")
+  local target =     Parameter(param_prefix .. param_name .. "TARGET")
+  local hysteresis = Parameter(param_prefix .. param_name .. "HYSTER")
+  local low_cutoff = Parameter(param_prefix .. param_name .. "LOW_CT")
 
   local active = false
   local low_cutoff_active = false
@@ -71,12 +71,6 @@ local function hysteresis_controller(param_prefix, battery_fn, battery_instance,
   return self
 end
 
-assert(param:add_param(param_key, (3*2*2)+1, "DEBUG", 0))
-assert(param:add_param(param_key, (3*2*2)+2, "PAYLOAD_POWR", 0))
-local debug = Parameter("VPS_DEBUG")
-local payload_power = Parameter("VPS_PAYLOAD_POWR")
-local payload_pin = 3
-
 -- Controllers
 local left_batt = 1
 local right_batt = 2
@@ -84,6 +78,13 @@ local charger_left  = hysteresis_controller("L_CHG_", battery.voltage,         l
 local heater_left   = hysteresis_controller("L_HEA_", battery.get_temperature, left_batt,   8, 1, 30,   5, -10)
 local charger_right = hysteresis_controller("R_CHG_", battery.voltage,         right_batt,  7, 2, 58, 0.1,   0)
 local heater_right  = hysteresis_controller("R_HEA_", battery.get_temperature, right_batt,  9, 3, 30,   5, -10)
+
+assert(param:add_param(param_key, (3*2*2)+1, "DEBUG", 0))
+assert(param:add_param(param_key, (3*2*2)+2, "PAYLOAD_POWR", 0))
+local debug = Parameter("VPS_DEBUG")
+local payload_power = Parameter("VPS_PAYLOAD_POWR")
+payload_power:set(0) -- turn it off it was on
+local payload_pin = 2
 
 local charge_limit = uint32_t (30*1000) -- in milliseconds
 local heater_limit = charge_limit + uint32_t (30*1000) -- this is a weird approach but the actual on time here
@@ -212,6 +213,12 @@ function get_power_budget()
 end
 
 local function budget_to_string (budget)
+  if budget == run_no_batt_connected then
+    return "no batt"
+  end
+  if budget == run_no_payload_power then
+    return "no payload"
+  end
   if budget == run_no_charger_required then
     return "independent boom"
   end
@@ -258,9 +265,9 @@ function emit_debug(output_states, budget)
   if (debug_level > 0) -- we want to debug
       and ((output_states ~= get_output_states()) -- state changed ( assumed to be debug 1, but anything higher also counts
             or
-            (debug_level > 2) -- 2 is debug once, 3 is always debug
+            (debug_level > 1) -- 2 is debug once, 3 is always debug
             ) then
-    gcs:send_text(3, "BMS: left " .. get_boom_debug (charger_left, heater_left) .. " right " .. get_boom_debug(charger_right, heater_right) .. " " .. budget_to_string(budget))
+    gcs:send_text(3, "BMS: left " .. get_boom_debug (charger_left, heater_left) .. " right " .. get_boom_debug(charger_right, heater_right) .. " " .. budget_to_string(budget) .. " payload " .. tostring (relay:get(payload_pin) == 0))
     if debug_level == 2 then
       debug:set(0)
     end
