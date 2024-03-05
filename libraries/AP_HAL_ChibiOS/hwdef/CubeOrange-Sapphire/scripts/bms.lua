@@ -161,6 +161,7 @@ function run_dual_charger()
 
   -- can't run both heaters, pick one
   if should_heat_left and should_heat_right then
+      -- FIXME: does not work to toggle
     should_charge_left = ((millis() / 60000) % 1) == 1
     should_charge_right = not should_charge_left
   end
@@ -199,7 +200,7 @@ function run_no_payload_power()
 end
 
 function get_power_budget()
-  if heater_left.below_cutoff() and heater_right.below_cutoff() then
+  if heater_left.below_cutoff() or heater_right.below_cutoff() then
     return run_no_batt_connected
   elseif not payload_power_should_be_active() then
     return run_no_payload_power
