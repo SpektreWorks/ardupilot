@@ -108,8 +108,8 @@ define HAL_SERIAL5_BAUD 57
 # define default params
 define AIRSPEED_CRUISE 25.7 # m/s
 define MIN_GNDSPEED 1 # m/s
-define AIRSPEED_FBW_MIN 21 # m/s
-define AIRSPEED_FBW_MAX 31 # m/s
+define AIRSPEED_FBW_MIN 23 # m/s
+define AIRSPEED_FBW_MAX 33 # m/s
 define HEAD_MAX 35 # degrees, roll limit
 define PITCH_MAX 12 # degrees
 define PITCH_MIN -15 # degrees
