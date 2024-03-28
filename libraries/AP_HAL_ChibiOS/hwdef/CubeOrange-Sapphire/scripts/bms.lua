@@ -161,8 +161,7 @@ function run_dual_charger()
 
   -- can't run both heaters, pick one
   if should_heat_left and should_heat_right then
-      -- FIXME: does not work to toggle
-    should_charge_left = ((millis() / 60000) % 1) == 1
+    should_charge_left = ((millis() / 60000) % 2) == 1
     should_charge_right = not should_charge_left
   end
 
