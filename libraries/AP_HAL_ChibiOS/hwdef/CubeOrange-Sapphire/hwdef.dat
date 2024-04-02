@@ -92,6 +92,7 @@ define AP_BATTERY_ESC_ENABLED 0
 define RANGEFINDER_MAX_INSTANCES 1 # we aren't running a ton
 define AP_RANGEFINDER_BACKEND_DEFAULT_ENABLED 0 # disable most rangefinder backends
 define AP_RANGEFINDER_UAVCAN_ENABLED 1
+define AP_RANGEFINDER_LIGHTWARE_SERIAL_ENABLED 1
 
 # disable unused actuators
 define AP_VOLZ_ENABLED 0
