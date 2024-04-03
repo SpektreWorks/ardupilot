@@ -161,8 +161,8 @@ function run_dual_charger()
 
   -- can't run both heaters, pick one
   if should_heat_left and should_heat_right then
-    should_charge_left = ((millis() / 60000) % 2) == 1
-    should_charge_right = not should_charge_left
+    should_heat_left = ((millis() / 60000) % 2) == 1
+    should_heat_right = not should_charge_left
   end
 
   if should_heat_left then
