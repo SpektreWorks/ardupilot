@@ -12,7 +12,7 @@ function bind_add_param(name, idx, default_value)
   return p
 end
 
-local batt_temp_min = bind_add_param("_BAT_TEMP_MIN", 1, 20)
+local batt_temp_min = bind_add_param("_BAT_TEMP_MIN", 1, 25)
 local batt_temp_max = bind_add_param("_BAT_TEMP_MAX", 2, 50)
 local batt_temp_mask = bind_add_param("_BAT_TEMP_MSK", 3, 6)
 

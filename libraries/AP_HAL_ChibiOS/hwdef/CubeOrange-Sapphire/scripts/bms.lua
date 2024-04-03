@@ -89,6 +89,9 @@ local payload_pin = 2
 local charge_limit = uint32_t (30*1000) -- in milliseconds
 local heater_limit = charge_limit + uint32_t (30*1000) -- this is a weird approach but the actual on time here
                                                          -- is the difference between this and the previous timer
+local dual_charger_swap_limit = uint32_t (60*1000) -- milliscondes
+local dual_charger_swap_test = dual_charger_swap_limit / 2
+
 function payload_power_should_be_active()
   return payload_power:get() > 0
 end
@@ -161,7 +164,7 @@ function run_dual_charger()
 
   -- can't run both heaters, pick one
   if should_heat_left and should_heat_right then
-    should_heat_left = ((millis() / 60000) % 2) == 1
+    should_heat_left = ((millis() % dual_charger_swap_limit)) < dual_charger_swap_test
     should_heat_right = not should_charge_left
   end
 
