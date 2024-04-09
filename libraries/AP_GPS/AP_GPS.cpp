@@ -49,7 +49,7 @@
 #define GPS_RTK_INJECT_TO_ALL 127
 #define GPS_MAX_RATE_MS 200 // maximum value of rate_ms (i.e. slowest update rate) is 5hz or 200ms
 #define GPS_BAUD_TIME_MS 1200
-#define GPS_TIMEOUT_MS 4000u
+#define GPS_TIMEOUT_MS 8000u
 
 // defines used to specify the mask position for use of different accuracy metrics in the blending algorithm
 #define BLEND_MASK_USE_HPOS_ACC     1
