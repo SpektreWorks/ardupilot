@@ -412,8 +412,31 @@ bool AP_Arming::ins_gyros_consistent(const AP_InertialSensor &ins)
         return true;
     }
 
-    const Vector3f &prime_gyro_vec = ins.get_gyro();
     const uint32_t now = AP_HAL::millis();
+    const uint32_t minimum_time = 10000;
+    bool passed_before_ice_start = false;
+
+#if AP_ICENGINE_ENABLED
+    if (option_enabled (Option::FREEZE_INS_CONSISTENT_WITH_ICE_RUN)) {
+        const auto *ice = AP::ice();
+        if (ice != nullptr) {
+            if (ice->get_state() >= AP_ICEngine::ICE_START_HEIGHT_DELAY) {
+                // the engine can create a lot of vibrations, if we were valid before it started
+                // we can keep that state and propegate it forward. If the system is highly unstable
+                // with temperature this may cause us to miss a bad IMU, but it's going to be masked
+                // by the engine vibration anyways
+                if (last_gyro_pass_ms == 0 || now - last_gyro_pass_ms < minimum_time) {
+                    last_gyro_pass_ms = 0;
+                } else {
+                    passed_before_ice_start = true;
+                }
+            }
+        }
+    }
+#endif
+
+
+    const Vector3f &prime_gyro_vec = ins.get_gyro();
     for(uint8_t i=0; i<gyro_count; i++) {
         if (!ins.use_gyro(i)) {
             continue;
@@ -422,7 +445,7 @@ bool AP_Arming::ins_gyros_consistent(const AP_InertialSensor &ins)
         const Vector3f &gyro_vec = ins.get_gyro(i);
         const Vector3f vec_diff = gyro_vec - prime_gyro_vec;
         // allow for up to 5 degrees/s difference
-        if (vec_diff.length() > radians(5)) {
+        if (vec_diff.length() > radians(5) && !passed_before_ice_start) {
             // this sensor disagrees with the primary sensor, so
             // gyros are inconsistent:
             last_gyro_pass_ms = 0;
@@ -437,7 +460,7 @@ bool AP_Arming::ins_gyros_consistent(const AP_InertialSensor &ins)
     }
 
     // must pass for at least 10 seconds before we're considered consistent:
-    if (now - last_gyro_pass_ms < 10000) {
+    if (now - last_gyro_pass_ms < minimum_time) {
         return false;
     }
 
