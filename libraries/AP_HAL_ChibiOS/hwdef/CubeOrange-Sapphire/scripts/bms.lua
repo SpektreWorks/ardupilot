@@ -75,9 +75,9 @@ end
 local left_batt = 1
 local right_batt = 2
 local charger_left  = hysteresis_controller("L_CHG_", battery.voltage,         left_batt,   6, 0, 58, 0.1,   0)
-local heater_left   = hysteresis_controller("L_HEA_", battery.get_temperature, left_batt,   8, 1, 30,   5, -10)
+local heater_left   = hysteresis_controller("L_HEA_", battery.get_temperature, left_batt,   8, 1, 30,   3, -10)
 local charger_right = hysteresis_controller("R_CHG_", battery.voltage,         right_batt,  7, 2, 58, 0.1,   0)
-local heater_right  = hysteresis_controller("R_HEA_", battery.get_temperature, right_batt,  9, 3, 30,   5, -10)
+local heater_right  = hysteresis_controller("R_HEA_", battery.get_temperature, right_batt,  9, 3, 30,   3, -10)
 
 assert(param:add_param(param_key, (3*2*2)+1, "DEBUG", 0))
 assert(param:add_param(param_key, (3*2*2)+2, "PAYLOAD_POWR", 0))
