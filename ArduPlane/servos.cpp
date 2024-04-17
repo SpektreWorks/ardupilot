@@ -547,9 +547,15 @@ void Plane::set_servos_controlled(void)
             SRV_Channels::set_output_limit(SRV_Channel::k_throttleLeft, SRV_Channel::Limit::ZERO_PWM);
             SRV_Channels::set_output_limit(SRV_Channel::k_throttleRight, SRV_Channel::Limit::ZERO_PWM);
         } else {
-            SRV_Channels::set_output_scaled(SRV_Channel::k_throttle, 0.0);
-            SRV_Channels::set_output_scaled(SRV_Channel::k_throttleLeft, 0.0);
-            SRV_Channels::set_output_scaled(SRV_Channel::k_throttleRight, 0.0);
+#if AP_ICENGINE_ENABLED
+            if (!g2.ice_control.allow_throttle_while_disarmed() ||
+                (g2.ice_control.get_state() < AP_ICEngine::ICE_STARTING))
+#endif
+            {
+                SRV_Channels::set_output_scaled(SRV_Channel::k_throttle, 0.0);
+                SRV_Channels::set_output_scaled(SRV_Channel::k_throttleLeft, 0.0);
+                SRV_Channels::set_output_scaled(SRV_Channel::k_throttleRight, 0.0);
+            }
         }
     } else if (suppress_throttle()) {
         SRV_Channels::set_output_scaled(SRV_Channel::k_throttle, 0.0); // default
@@ -893,7 +899,7 @@ void Plane::set_servos(void)
     int8_t min_throttle = 0;
 #if AP_ICENGINE_ENABLED
     if (g2.ice_control.allow_throttle_while_disarmed()) {
-        min_throttle = MAX(aparm.throttle_min.get(), 0);
+        min_throttle = roundf(SRV_Channels::get_output_scaled(SRV_Channel::k_throttle));
     }
     const float base_throttle = SRV_Channels::get_output_scaled(SRV_Channel::k_throttle);
 #endif
