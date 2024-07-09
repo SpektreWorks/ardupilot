@@ -15,6 +15,7 @@ struct AP_FixedWing {
     AP_Int16 airspeed_max;
     AP_Int32 airspeed_cruise_cm;
     AP_Int32 min_gndspeed_cm;
+    AP_Float airspeed_stall;
     AP_Int8  crash_detection_enable;
     AP_Int16 roll_limit_cd;
     AP_Int16 pitch_limit_max_cd;
