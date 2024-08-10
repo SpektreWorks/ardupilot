@@ -111,10 +111,8 @@ local radio_delay = nil
 local radio_poweroff_start = nil
 local radio_power_current_on = true
 
-function update_radio_power ()
-  if power_mode:get () ~= 1 then
-    return
-  end
+-- process RC power
+function update_radio_power_rc_control ()
   -- always debounce a channel
   local input_changed = debounce_channel (timer_rc)
 
@@ -183,6 +181,24 @@ function update_radio_power ()
         gcs:send_text(6, "Radio timer cleared");
       end
     end
+  end
+end
+
+function update_radio_power ()
+  local mode = power_mode:get ()
+
+  if mode == 1 then
+    -- run via RC control
+    update_radio_power_rc_control ()
+  elseif mode == 2 then
+    -- assumed to be external relay control based
+    return
+  elseif mode == 3 then
+    -- disabled, force the radio off
+    radio_power_current_on = false
+  else -- assumed to be 0, but cover all cases
+    -- disabled, force the radio on
+    radio_power_current_on = true
   end
 
   if radio_power_current_on then
