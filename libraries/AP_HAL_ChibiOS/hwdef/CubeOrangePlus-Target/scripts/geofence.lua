@@ -12,12 +12,15 @@ end
 add_params(PARAM_TABLE_KEY, 'FENCE', {
         { '_CIRCLE_KM',  0 },
         { '_ALTITUDE_M', 0 },
+        { '_ALTITUDE_F', 1 },
     })
 
 local fence_radius = Parameter()
 fence_radius:init('FENCE_CIRCLE_KM')
 local fence_altitude = Parameter()
 fence_altitude:init('FENCE_ALTITUDE_M')
+local fence_frame = Parameter()
+fence_frame:init('FENCE_ALTITUDE_F')
 
 function test_breaches()
   if vehicle:get_mode() == 11 then
@@ -42,8 +45,9 @@ function test_breaches()
   end
 
   local altitude = fence_altitude:get()
-  if altitude > 0 then
-    if pos:change_alt_frame (1) then
+  local target_frame = fence_frame:get()
+  if altitude > 0 and target_frame >= 0 and target_frame <= 3 then
+    if pos:change_alt_frame (target_frame) then
       -- altitude is now relative to home
       if pos:alt() > altitude * 100 then
         if vehicle:set_mode(11) then
